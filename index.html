@@ -111,7 +111,7 @@ body.gate-on{background:
 /* coin detail as a wide slide-in drawer */
 #detailRadar{position:fixed;top:58px;right:0;bottom:0;width:min(640px,94vw);z-index:40;border-radius:0;border-left:1px solid var(--line2);background:#0f0e13;transform:translateX(102%);transition:transform .28s cubic-bezier(.4,0,.2,1);box-shadow:-20px 0 60px rgba(0,0,0,.5)}
 #detailRadar.open{transform:none}
-#detailBackdrop{position:fixed;inset:58px 0 0 0;z-index:39;background:rgba(5,4,8,.55);backdrop-filter:blur(2px);opacity:0;pointer-events:none;transition:opacity .28s}
+#detailBackdrop{position:fixed;top:58px;right:0;bottom:0;left:184px;z-index:39;background:rgba(5,4,8,.55);backdrop-filter:blur(2px);opacity:0;pointer-events:none;transition:opacity .28s}
 #detailBackdrop.open{opacity:1;pointer-events:auto}
 #detailRadar .chartbox{height:440px}
 #detailRadar .d-close{display:block}
@@ -199,6 +199,31 @@ body.gate-on{background:
 .ov-rankings .rows .row{grid-template-columns:28px minmax(150px,1.6fr) 60px 90px 100px 80px 90px 96px 56px}
 @media(max-width:1100px){.ov-feature{grid-template-columns:1fr}.ov-stats{grid-template-columns:1fr 1fr}}
 @media(max-width:700px){.ov-stats{grid-template-columns:1fr}.ov-thead .c-vol,.ov-thead .c-liq,.ov-rankings .row .c-vol,.ov-rankings .row .c-liq{display:none}}
+
+/* ---------- buy signals ---------- */
+.signals{max-width:860px;margin:0 auto;display:flex;flex-direction:column;gap:12px}
+.sig-hero{background:linear-gradient(145deg,#1c1430,var(--panel) 70%);border-color:#3b2a5f}
+.sig-card{margin-top:6px}
+.sig-top{display:flex;align-items:center;gap:14px;margin-bottom:14px}
+.sig-top .coin-ico{width:52px;height:52px;flex-basis:52px;font-size:20px}
+.sig-id{flex:1}.sig-id b{font-size:24px;letter-spacing:-.03em;display:block}.sig-id small{color:var(--mut);font:12px var(--mono)}
+.sig-score{width:58px;height:58px;border-radius:50%;display:grid;place-items:center;font:800 22px var(--mono);border:3px solid}
+.sig-score.s-hi{border-color:var(--g);color:var(--g)}.sig-score.s-mid{border-color:var(--p);color:var(--p2)}.sig-score.s-lo{border-color:var(--a);color:var(--a)}.sig-score.s-bad{border-color:var(--r);color:var(--r)}
+.sig-desc{color:#c9c1d4;line-height:1.7;font-size:14px;margin:0 0 16px}
+.sig-metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px}
+.sig-metrics div{background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:12px}
+.sig-metrics span{display:block;font:9px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--dim);margin-bottom:6px}
+.sig-metrics b{font:600 14px var(--mono)}
+.sig-actions{display:flex;gap:10px;flex-wrap:wrap}
+.rsbtn{display:inline-flex;align-items:center;gap:8px;padding:12px 18px;border-radius:9px;border:1px solid var(--line2);background:var(--panel2);color:var(--cream);font-weight:600;font-size:13px;text-decoration:none;transition:border-color .15s,background .15s}
+.rsbtn:hover{border-color:var(--p)}
+.rsbtn.buy{background:var(--p);border-color:var(--p);color:#fff}
+.rsbtn.buy:hover{background:#ad6fe6}
+.sig-actions .rsbtn{flex:1;justify-content:center;text-align:center;min-width:160px}
+.sig-hist{display:grid;grid-template-columns:120px 1fr 48px 80px;gap:10px;align-items:center;padding:10px 4px;border-bottom:1px solid var(--line);font:12px var(--mono);cursor:pointer}
+.sig-hist:hover{background:var(--panel2)}
+.sh-time{color:var(--dim)}.sh-sym{color:var(--cream);font-weight:600}.sh-score{text-align:center;font-weight:700}.sh-chg{text-align:right;font-weight:700}
+@media(max-width:620px){.sig-metrics{grid-template-columns:1fr 1fr}.sig-hist{grid-template-columns:90px 1fr 60px}}
 
 .feed{display:flex;flex-direction:column;flex:1;min-height:0;overflow:hidden}
 
@@ -492,7 +517,7 @@ body.gate-on{background:
     <button class="nav" data-view="radar"><i>▦</i><span>Radar</span></button>
     <button class="nav" data-view="scanner"><i>◎</i><span>Bundle scanner</span></button>
     <button class="nav" data-view="watch"><i>★</i><span>Watchlist</span><em id="watchCount">0</em></button>
-    <button class="nav" data-view="daily"><i>◆</i><span>Daily picks</span></button>
+    <button class="nav" data-view="daily"><i>◆</i><span>Buy signals</span></button>
     <div class="side-foot"><span id="refreshInfo">Refreshing...</span></div>
   </nav>
 
@@ -608,24 +633,20 @@ body.gate-on{background:
 
     <!-- DAILY -->
     <section id="view-daily" class="view hidden">
-      <div class="daily">
-        <div class="panel pad">
-          <div class="sec-head"><h2>Today's picks</h2><span id="dailyCount" class="muted small"></span></div>
-          <p class="muted">The five best-scoring coins that passed the bundle scan, locked in once per day with their entry price. Come back to see how they did.</p>
-          <div id="todayPicks" class="picks"></div>
+      <div class="signals">
+        <div class="panel pad sig-hero" id="sigHero">
+          <div class="sec-head"><h2>⚡ Signal of the hour</h2><span id="sigCountdown" class="muted small"></span></div>
+          <div id="sigCurrent"></div>
         </div>
         <div class="panel pad">
-          <div class="sec-head"><h2>Track record</h2><span class="muted small">Stored on this device</span></div>
-          <div id="history"></div>
-        </div>
-        <div class="panel pad">
-          <div class="sec-head"><h2>Ranks</h2></div>
-          <div id="ranks" class="ranks"></div>
+          <div class="sec-head"><h2>Recent signals</h2><span class="muted small">Stored on this device</span></div>
+          <p class="muted small">Entry price is locked the moment each signal fires. Change is measured from there.</p>
+          <div id="sigHistory"></div>
         </div>
         <div class="panel pad how">
-          <div class="sec-head"><h2>How the score works</h2></div>
-          <p class="muted">Seven signals, each 0 to 100: momentum, buy pressure, volume against liquidity, liquidity depth, age, socials and safety. A bundled coin is capped at 45 no matter how strong it looks.</p>
-          <p class="muted small">Not financial advice. A high score means the setup looks healthy, not that the price will go up.</p>
+          <div class="sec-head"><h2>How a signal is chosen</h2></div>
+          <p class="muted">Once per hour ZIMR picks the single coin with the healthiest setup: a clean bundle scan, no high-risk on-chain signals, real liquidity and volume, and buyers in control. Market cap does not matter, a safe small coin can win over a big one.</p>
+          <p class="muted small">Not financial advice. A signal means the setup looks healthy right now, not that the price will go up. Always do your own research.</p>
         </div>
       </div>
     </section>
@@ -778,13 +799,17 @@ function ingest(list) {
   // Scan a useful rolling batch. Discovery stays broad; RugCheck only gets the
   // freshest / most tradeable candidates so a large feed does not hammer the API.
   const scanBatch = [...S.coins.values()]
-    .filter(c => c.liq >= 1000)
+    .filter(c => c.liq >= 800)
     .sort((a, b) => {
-      // prioritise trending, then recent + active
-      const pri = c => (c.gtTrending ? 1000 : 0) + opportunity(c) + (c.vol1 / Math.max(c.liq, 1)) * 4;
+      // prioritise brand-new launches and trending so they get a score fast
+      const pri = c => {
+        const ageMin = (now - c.created) / 60000;
+        const freshPri = ageMin < 15 ? 2000 : ageMin < 60 ? 1200 : ageMin < 360 ? 500 : 0;
+        return freshPri + (c.gtTrending ? 800 : 0) + opportunity(c) + (c.vol1 / Math.max(c.liq, 1)) * 4;
+      };
       return pri(b) - pri(a);
     })
-    .slice(0, 180);
+    .slice(0, 220);
   for (const c of scanBatch) queueScan(c, false);
 
   const visibleCount = visibleCandidatesCount();
@@ -1032,6 +1057,23 @@ function opportunity(c){
   if(c.liq>=10000) raw+=7; else if(c.liq<5000) raw-=15;
   return raw;
 }
+// Scam / rug heuristic. Hard-filters the worst stuff out of discovery lists.
+// Uses the RugCheck scan when available, plus always-on price/liquidity signals.
+function isScam(c){
+  const sc = S.scans.get(c.mint), d = dumpSignals(c).level;
+  if (d === 'rug') return true;                                   // actively rugging
+  if (sc && sc.status !== 'err') {
+    if (sc.rugged) return true;                                   // marked rugged
+    if (sc.status === 'bundled') return true;                     // insider bundle
+    if (sc.mintAuth && sc.freezeAuth) return true;               // full owner control
+    if (sc.top10 != null && sc.top10 > 80) return true;          // extreme concentration
+    if (sc.lpLocked != null && sc.lpLocked < 5 && c.liq < 15000) return true; // unlocked thin LP
+  }
+  if (c.liq > 0 && c.liq < 600) return true;                      // untradeable dust
+  // price fully collapsed from any recent high
+  if ((c.ch1 ?? 0) <= -85 || (c.ch24 ?? 0) <= -92) return true;
+  return false;
+}
 // "Hot" = genuinely active and tradeable right now, and not dumping or rugged.
 // This is deliberately broad on discovery but hard on junk and dumps.
 function qualityGate(c){
@@ -1123,6 +1165,10 @@ function scoreCoin(c) {
   if (ageMin < 10) neg.push('Under 10 minutes old, the first candles are the most manipulated');
   if (c.socials >= 2) why.push('Has a website and socials listed');
   if (c.socials === 0) neg.push('No socials or website listed');
+  // risk layer: even a clean RugCheck is capped if on-chain behaviour looks dangerous
+  const risk = riskLevel(c);
+  if (risk === 'danger') { total = Math.min(total, 40); neg.push('On-chain signals look dangerous (authorities, concentration or churn). Treat as high risk.'); }
+  else if (risk === 'warn') { total = Math.min(total, 62); neg.push('Some risk signals present, size down and verify yourself.'); }
   const t = Math.round(clamp(isFinite(total) ? total : 0, 0, 100));
   let v;
   if (dump.level === 'rug') v = ['Dumping', 'bad', 'Price is crashing right now. Do not catch this knife.'];
@@ -1198,17 +1244,19 @@ async function loadGecko() {
   // a few pages each; 30/min budget is plenty for this cadence
   const reqs = [
     safe(jget(API.gtTrending(1))), safe(jget(API.gtTrending(2))),
-    safe(jget(API.gtVolume(1))), safe(jget(API.gtVolume(2))), safe(jget(API.gtVolume(3))),
-    safe(jget(API.gtNew(1))), safe(jget(API.gtNew(2)))
+    safe(jget(API.gtVolume(1))), safe(jget(API.gtVolume(2))),
+    safe(jget(API.gtNew(1))), safe(jget(API.gtNew(2))), safe(jget(API.gtNew(3)))
   ];
   const res = await Promise.all(reqs);
   const out = [];
   res.forEach((r, i) => {
     const isTrending = i < 2;
+    const isNew = i >= 4;
     for (const pool of (r?.data || [])) {
       const c = mapGtPool(pool);
       if (!c) continue;
       if (isTrending) c.gtTrending = true;
+      if (isNew) { c.gtNew = true; c.sources = [...new Set([...(c.sources||[]), 'new'])]; }
       out.push(c);
     }
   });
@@ -1341,6 +1389,8 @@ async function loadPulse() {
 /* ---------- list rendering ---------- */
 function visible(tab = S.tab) {
   let a = [...S.coins.values()].filter(c => c.liq >= 200);
+  // hide obvious scams/rugs from every discovery list; a direct search can still surface anything
+  if (!S.q) a = a.filter(c => !isScam(c));
   if (S.age) a = a.filter(c => (Date.now() - c.created) / 3600e3 <= S.age);
   if (S.narr) a = a.filter(c => narrOf(c).includes(S.narr));
   if (S.q) { const q = S.q.toLowerCase(); a = a.filter(c => c.symbol.toLowerCase().includes(q) || c.name.toLowerCase().includes(q) || c.mint.toLowerCase().startsWith(q)); }
@@ -1400,12 +1450,41 @@ function visible(tab = S.tab) {
 const watch = () => store.get('zimr_watch', []);
 const isWatched = m => watch().some(w => w.mint === m);
 function icoHtml(c) { return c.icon ? `<img class="coin-ico" src="${esc(c.icon)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'coin-ico',textContent:'${esc(c.symbol).slice(0, 1).toUpperCase()}'}))">` : `<div class="coin-ico">${esc(c.symbol).slice(0, 1).toUpperCase()}</div>`; }
+// Extra risk layer so a "clean" RugCheck result never shows a false "safe".
+// Returns 'danger' | 'warn' | null based on on-chain-derived behaviour.
+function riskLevel(c) {
+  const sc = S.scans.get(c.mint);
+  const ageMin = (Date.now() - c.created) / 60000, tx = c.buys1 + c.sells1, sellP = tx ? c.sells1 / tx : .5;
+  const volLiq = c.liq ? c.vol24 / c.liq : 0;
+  let danger = 0, warn = 0;
+  if (sc && sc.status !== 'err') {
+    if (sc.mintAuth) warn++;
+    if (sc.freezeAuth) danger++;                         // can freeze your wallet
+    if (sc.top10 != null && sc.top10 > 60) danger++;
+    else if (sc.top10 != null && sc.top10 > 40) warn++;
+    if (sc.lpLocked != null && sc.lpLocked < 20) warn++; // LP not locked
+    if (sc.holders != null && sc.holders < 40) warn++;   // almost no holders
+  }
+  if (ageMin < 120 && (c.ch1 ?? 0) > 80) warn++;         // very young + vertical pump
+  if (ageMin < 30) warn++;                               // first 30 min are the riskiest
+  if (sellP > .55 && tx > 60) warn++;                    // sells outpacing buys
+  if (volLiq > 15) warn++;                               // volume churning far above liquidity
+  if (c.liq < 5000) warn++;                              // thin, easy to move
+  if (danger >= 1 || warn >= 3) return 'danger';
+  if (warn >= 1) return 'warn';
+  return null;
+}
 function chipHtml(m) {
-  const sc = S.scans.get(m);
+  const sc = S.scans.get(m), c = S.coins.get(m);
   if (!sc) return '<span class="chip pend">Scanning</span>';
   if (sc.status === 'err') return '<span class="chip" style="color:var(--mut);border-color:var(--line2)" title="Scan unavailable">n/a</span>';
-  const t = { clean: 'No', sus: 'Suspect', bundled: 'Yes' }[sc.status];
-  return `<span class="chip ${sc.status}">${sc.status === 'clean' ? '✓' : sc.status === 'bundled' ? '✕' : '!'} ${t}</span>`;
+  if (sc.status === 'bundled') return '<span class="chip bundled">✕ Bundled</span>';
+  if (sc.status === 'sus') return '<span class="chip sus">! Suspect</span>';
+  // status is "clean" per RugCheck — apply our own risk layer before calling it safe
+  const r = c ? riskLevel(c) : null;
+  if (r === 'danger') return '<span class="chip bundled">⚠ High risk</span>';
+  if (r === 'warn') return '<span class="chip sus">! Caution</span>';
+  return '<span class="chip clean">✓ Clean</span>';
 }
 function rowHtml(c, flat) {
   const s = scoreCoin(c), tx = c.buys1 + c.sells1, pc = tx ? c.buys1 / tx * 100 : 50;
@@ -1713,31 +1792,91 @@ function toggleWatch(m) {
   store.set('zimr_watch', w.slice(0, 60)); render();
 }
 
-/* ---------- daily picks ---------- */
+/* ---------- hourly buy signals ---------- */
+const hourKey = (d = new Date()) => d.toISOString().slice(0, 13); // e.g. 2026-10-07T14
+function describeCoin(c) {
+  const nars = narrOf(c), ageH = (Date.now() - c.created) / 36e5;
+  const tx = c.buys1 + c.sells1, bp = tx ? Math.round(c.buys1 / tx * 100) : 50;
+  const theme = nars.length ? nars.join(' and ') + '-themed' : 'community';
+  const ageTxt = ageH < 1 ? `${Math.round(ageH * 60)} minutes old` : ageH < 48 ? `${Math.round(ageH)} hours old` : `${Math.round(ageH / 24)} days old`;
+  const sizeTxt = c.mc >= 1e6 ? 'an established mid-cap' : c.mc >= 2e5 ? 'a growing small-cap' : 'an early micro-cap';
+  let s = `${esc(c.symbol)} (${esc(c.name)}) is ${sizeTxt} ${theme} coin on Solana, ${ageTxt}. `;
+  s += `It holds ${fmt.usd(c.liq)} in liquidity on ${fmt.usd(c.mc)} market cap, with ${fmt.usd(c.vol24)} traded in the last 24h. `;
+  s += bp >= 55 ? `Buyers are in control right now (${bp}% of trades are buys). ` : bp <= 45 ? `Selling pressure is picking up (${bp}% buys), so be careful. ` : `Buying and selling are roughly balanced. `;
+  const sc = S.scans.get(c.mint);
+  if (sc && sc.status === 'clean') s += `The bundle scan is clean: no insider cluster, `;
+  s += sc ? `${sc.mintAuth ? 'mint authority is still active' : 'mint authority renounced'}, ${sc.freezeAuth ? 'freeze authority active' : 'freeze renounced'}, and roughly ${sc.top10 != null ? sc.top10.toFixed(0) + '% held by the top 10 holders' : 'holder spread unknown'}.` : `scan still running.`;
+  return s;
+}
+function pickSignal() {
+  // best healthy coin right now: clean scan, no high risk, real liquidity + volume, buyers in control
+  const cands = [...S.coins.values()].filter(c => {
+    const sc = S.scans.get(c.mint);
+    if (!sc || sc.status !== 'clean') return false;
+    if (riskLevel(c) === 'danger') return false;
+    if (dumpSignals(c).level !== 'none') return false;
+    if (isScam(c)) return false;
+    const tx = c.buys1 + c.sells1, bp = tx ? c.buys1 / tx : .5;
+    return c.liq >= 8000 && c.vol24 >= 20000 && tx >= 40 && bp >= .5;
+  }).map(c => ({ c, s: scoreCoin(c).total })).sort((a, b) => b.s - a.s);
+  return cands[0] || null;
+}
 function maybeSnapshot() {
-  if (S.snapDone) return;
-  const picks = store.get('zimr_picks', {}), key = dateKey() + (S.mode === 'demo' ? '-demo' : '');
-  if (picks[key]) { S.snapDone = true; return; }
-  const scannedCount = [...S.coins.values()].filter(c => S.scans.has(c.mint)).length;
-  if (scannedCount < 10 && Date.now() - S.started < 40000) return;
-  const cands = [...S.coins.values()].filter(c => c.liq >= 10000 && S.scans.get(c.mint) && S.scans.get(c.mint).status === 'clean' && dumpSignals(c).level === 'none')
-    .map(c => ({ c, s: scoreCoin(c).total })).sort((a, b) => b.s - a.s).slice(0, 5);
-  if (cands.length < 3) return;
-  picks[key] = { demo: S.mode === 'demo', picks: cands.map(({ c, s }) => ({ mint: c.mint, symbol: c.symbol, entry: c.price, score: s, icon: c.icon })) };
-  const keys = Object.keys(picks).sort(); while (keys.length > 14) delete picks[keys.shift()];
-  store.set('zimr_picks', picks); S.snapDone = true;
+  const key = hourKey() + (S.mode === 'demo' ? '-demo' : '');
+  const sigs = store.get('zimr_signals', {});
+  if (sigs[key]) return;                       // one signal per hour
+  // give the scanner a moment after load before firing
+  if (Date.now() - S.started < 25000) return;
+  const best = pickSignal();
+  if (!best) return;
+  const { c, s } = best;
+  sigs[key] = { mint: c.mint, symbol: c.symbol, name: c.name, entry: c.price, score: s, icon: c.icon || null, desc: describeCoin(c), t: Date.now(), demo: S.mode === 'demo' };
+  const keys = Object.keys(sigs).sort(); while (keys.length > 48) delete sigs[keys.shift()];
+  store.set('zimr_signals', sigs);
+  if (S.view === 'daily') renderDaily();
 }
 async function renderDaily() {
-  const picks = store.get('zimr_picks', {}), keys = Object.keys(picks).sort().reverse();
-  const today = picks[dateKey() + (S.mode === 'demo' ? '-demo' : '')];
-  const mints = [...new Set(keys.flatMap(k => picks[k].picks.map(p => p.mint)))];
+  const sigs = store.get('zimr_signals', {});
+  const keys = Object.keys(sigs).sort().reverse();
+  const curKey = hourKey() + (S.mode === 'demo' ? '-demo' : '');
+  const current = sigs[curKey] || (keys.length ? sigs[keys[0]] : null);
+  // countdown to next hour
+  const now = new Date(), next = new Date(now); next.setHours(now.getHours() + 1, 0, 0, 0);
+  const mins = Math.max(0, Math.round((next - now) / 60000));
+  $('#sigCountdown').textContent = `Next signal in ${mins} min`;
+  // live price for change since entry
   const cur = new Map([...S.coins].map(([m, c]) => [m, c.price]));
-  if (S.mode === 'live') { const miss = mints.filter(m => !cur.has(m)); if (miss.length) { try { (await fetchTokens(miss)).forEach(c => cur.set(c.mint, c.price)); } catch {} } }
-  const chg = p => { let now = cur.get(p.mint); if (S.mode === 'demo' && now == null) { now = p.entry * (1 + (rng(p.mint + dateKey())() - .45) * .6); } return now && p.entry ? (now / p.entry - 1) * 100 : null; };
-  $('#dailyCount').textContent = today ? `Locked in for ${dateKey()}${today.demo ? ' (demo)' : ''}` : 'Locking in picks...';
-  $('#todayPicks').innerHTML = today ? today.picks.map(p => `<button class="pick" data-mint="${p.mint}"><b>${esc(p.symbol)}</b><small>Entry ${fmt.price(p.entry)}</small><div class="pc ${tone(p.score)}">${p.score}</div></button>`).join('') : '<p class="muted small">Picks lock in once enough coins have been scanned. Give it a few seconds.</p>';
-  $('#history').innerHTML = keys.length ? keys.map(k => `<div class="hist-day"><h6>${k}</h6>${picks[k].picks.map(p => { const x = chg(p); return `<div class="hist-pick"><span>${esc(p.symbol)}</span><span class="${cls(x)}">${x == null ? '–' : fmt.pct(x)}</span></div>`; }).join('')}</div>`).join('') : '<p class="muted small">No history yet. Your first picks appear here after they lock in.</p>';
-  $('#ranks').innerHTML = RANKS.map(r => `<div class="rank ${rankFor(streak.count) === r[1] ? 'on' : ''}"><span>${r[1]}</span><span>${r[0]}+ day${r[0] > 1 ? 's' : ''}</span></div>`).join('');
+  const chg = sg => { const nowP = cur.get(sg.mint); return nowP && sg.entry ? (nowP / sg.entry - 1) * 100 : null; };
+  if (!current) {
+    $('#sigCurrent').innerHTML = '<p class="muted">Scanning the market for the first safe setup. The first signal fires within a minute.</p>';
+  } else {
+    const change = chg(current);
+    const sc = S.scans.get(current.mint);
+    $('#sigCurrent').innerHTML = `
+      <div class="sig-card" data-mint="${current.mint}">
+        <div class="sig-top">
+          ${current.icon ? `<img class="coin-ico" src="${esc(current.icon)}" referrerpolicy="no-referrer">` : `<div class="coin-ico">${esc(current.symbol).slice(0,1)}</div>`}
+          <div class="sig-id"><b>${esc(current.symbol)}</b><small>${esc(current.name)}</small></div>
+          <div class="sig-score ${tone(current.score)}">${current.score}</div>
+        </div>
+        <p class="sig-desc">${esc(current.desc)}</p>
+        <div class="sig-metrics">
+          <div><span>Entry</span><b>${fmt.price(current.entry)}</b></div>
+          <div><span>Now</span><b>${cur.has(current.mint) ? fmt.price(cur.get(current.mint)) : '–'}</b></div>
+          <div><span>Since signal</span><b class="${cls(change)}">${change == null ? '–' : fmt.pct(change)}</b></div>
+          <div><span>Bundled?</span><b>${chipHtml(current.mint)}</b></div>
+        </div>
+        <div class="sig-actions">
+          <a class="rsbtn buy" href="https://jup.ag/swap/SOL-${esc(current.mint)}" target="_blank" rel="noopener">Trade on Jupiter ↗</a>
+          <button class="rsbtn" data-mint="${current.mint}">Open full report</button>
+        </div>
+        <p class="muted small" style="margin-top:12px">Not financial advice. This is a signal, not a guarantee.</p>
+      </div>`;
+  }
+  $('#sigHistory').innerHTML = keys.length
+    ? keys.slice(0, 24).map(k => { const sg = sigs[k], x = chg(sg); const hr = k.slice(11, 13) + ':00';
+        return `<div class="sig-hist" data-mint="${sg.mint}"><span class="sh-time">${k.slice(5,10)} ${hr}</span><span class="sh-sym">${esc(sg.symbol)}</span><span class="sh-score ${tone(sg.score)}">${sg.score}</span><span class="sh-chg ${cls(x)}">${x == null ? '–' : fmt.pct(x)}</span></div>`; }).join('')
+    : '<p class="muted small">No signals yet. The first one appears here after it fires.</p>';
 }
 
 /* ---------- scanner by CA ---------- */
@@ -1822,10 +1961,13 @@ document.addEventListener('click', e => {
   const t = e.target;
   const star = t.closest('[data-star]'); if (star) { e.stopPropagation(); toggleWatch(star.dataset.star); return; }
   const copy = t.closest('[data-copy]'); if (copy) { navigator.clipboard?.writeText(copy.dataset.copy); copy.textContent = 'Copied'; setTimeout(render, 900); return; }
-  if (t.closest('[data-close]')) { $$('.detail').forEach(d => d.classList.remove('open')); return; }
+  if (t.closest('[data-close]')) { closeDrawer(); return; }
+  if (t.id === 'detailBackdrop') { closeDrawer(); return; }
   const goto = t.closest('[data-goto]'); if (goto) { S.tab = goto.dataset.goto; S.sort = (goto.dataset.goto === 'all') ? 'vol' : null; updateSortUI(); $$('#tabs button').forEach(b => b.classList.toggle('sel', b.dataset.tab === S.tab)); showView('radar'); return; }
   if (t.closest('#ovExplore')) { showView('radar'); return; }
   const ovi = t.closest('.ov-item[data-mint]'); if (ovi) { S.sel = ovi.dataset.mint; showView('radar'); selectCoin(ovi.dataset.mint); return; }
+  const sigh = t.closest('.sig-hist[data-mint]'); if (sigh) { S.sel = sigh.dataset.mint; showView('radar'); selectCoin(sigh.dataset.mint); return; }
+  const sigr = t.closest('.sig-card button[data-mint]'); if (sigr) { S.sel = sigr.dataset.mint; showView('radar'); selectCoin(sigr.dataset.mint); return; }
   const tev = t.closest('.tape-ev[data-mint]'); if (tev) { selectCoin(tev.dataset.mint); return; }
   const mv = t.closest('.mv[data-mint]'); if (mv) { selectCoin(mv.dataset.mint); return; }
   const row = t.closest('.row[data-mint]'); if (row) { if (S.view === 'watch') { S.sel = row.dataset.mint; showView('radar'); selectCoin(row.dataset.mint); } else selectCoin(row.dataset.mint); return; }
@@ -1862,7 +2004,7 @@ $('#connectBtn').onclick = () => $('#modal').classList.remove('hidden');
 $('#mClose').onclick = () => $('#modal').classList.add('hidden');
 $('#modal').addEventListener('click', e => { if (e.target.id === 'modal') $('#modal').classList.add('hidden'); });
 $$('.wallet').forEach(b => b.onclick = () => { $('#mStatus').textContent = `${b.dataset.wallet} connected (demo). Token gate not live yet.`; $('#connectBtn').textContent = 'Connected'; setTimeout(() => $('#modal').classList.add('hidden'), 900); });
-addEventListener('keydown', e => { if (e.key === 'Escape') { $('#modal').classList.add('hidden'); $$('.detail').forEach(d => d.classList.remove('open')); } });
+addEventListener('keydown', e => { if (e.key === 'Escape') { $('#modal').classList.add('hidden'); closeDrawer(); } });
 document.addEventListener('visibilitychange', () => { if (!document.hidden) { S.newCount = 0; document.title = 'ZIMR Terminal'; } });
 
 function enterApp() {
