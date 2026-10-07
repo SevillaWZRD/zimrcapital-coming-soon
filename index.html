@@ -260,6 +260,7 @@ body.gate-on{background:
 .tok-t small{display:block;font:10px var(--mono);color:var(--dim);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .tag{font:700 8px var(--mono);letter-spacing:.06em;background:var(--p);color:#fff;padding:2px 5px;border-radius:3px;margin-left:6px;vertical-align:2px}
 .tag.dump{background:var(--r);color:#2a0d0d}
+.tag.copy{background:#c98a2a;color:#2a1c05}
 .bsbar{height:4px;border-radius:3px;background:var(--r);overflow:hidden;margin-bottom:5px}.bsbar i{display:block;height:100%;background:var(--g)}
 .bs small{font-size:10px;color:var(--mut)}
 .chip{display:inline-flex;align-items:center;gap:6px;font:600 10px var(--mono);padding:5px 8px;border-radius:5px;border:1px solid;white-space:nowrap}
@@ -768,6 +769,46 @@ const dateKey = (d = new Date()) => d.toISOString().slice(0, 10);
 
 
 /* ---------- candidate ingestion ---------- */
+// Group coins that share a ticker or near-identical name. Lots of copycats launch
+// under the same name to ride a trend; only one is usually "the real one".
+// The strongest in each group (oldest + most liquidity/holders/volume) stays clean;
+// the rest are tagged as possible copies so you know to be careful.
+function normName(s){ return String(s||'').toLowerCase().replace(/[^a-z0-9]/g,''); }
+function dupStrength(c){
+  const sc = S.scans.get(c.mint);
+  const ageH = (Date.now() - (c.created||Date.now())) / 36e3;
+  // older, deeper liquidity, more volume, more holders, real socials = more likely the original
+  return Math.log10(Math.max(c.liq,1))*3
+       + Math.log10(Math.max(c.vol24,1))*2.5
+       + Math.min(ageH, 24*14)*0.02
+       + (sc?.holders ? Math.log10(sc.holders)*2 : 0)
+       + ((c.xUrl?1:0)+(c.websiteUrl?1:0)+(c.telegramUrl?1:0))*1.5;
+}
+function recomputeDuplicates(){
+  const groups = new Map(); // key -> [coins]
+  for (const c of S.coins.values()){
+    // key on ticker; also on normalized name when it is distinctive (>=4 chars)
+    const keys = new Set();
+    // only distinctive names/tickers count — short ones like AI/BI/SOL match everything
+    const sym = normName(c.symbol); if (sym.length >= 4) keys.add('t:'+sym);
+    const nm = normName(c.name); if (nm.length >= 5) keys.add('n:'+nm);
+    c._dupKeys = [...keys];
+    for (const k of keys){ if(!groups.has(k)) groups.set(k,[]); groups.get(k).push(c); }
+  }
+  // reset flags
+  for (const c of S.coins.values()){ c.dupCount = 0; c.isCopy = false; c.isOriginal = false; }
+  for (const [k, arr] of groups){
+    if (arr.length < 2) continue;
+    // the strongest member is the original; others are copies
+    let best = arr[0], bestScore = -Infinity;
+    for (const c of arr){ const s = dupStrength(c); if (s > bestScore){ bestScore = s; best = c; } }
+    for (const c of arr){
+      c.dupCount = Math.max(c.dupCount, arr.length - 1);
+      if (c === best) c.isOriginal = c.isOriginal || (arr.length > 1);
+      else c.isCopy = true;
+    }
+  }
+}
 function ingest(list) {
   const incoming = Array.isArray(list) ? list.filter(c => c && c.mint) : [];
   const now = Date.now();
@@ -795,6 +836,8 @@ function ingest(list) {
     }
     S.coins.set(c.mint, c);
   }
+
+  recomputeDuplicates();
 
   // Scan a useful rolling batch. Discovery stays broad; RugCheck only gets the
   // freshest / most tradeable candidates so a large feed does not hammer the API.
@@ -1059,19 +1102,52 @@ function opportunity(c){
 }
 // Scam / rug heuristic. Hard-filters the worst stuff out of discovery lists.
 // Uses the RugCheck scan when available, plus always-on price/liquidity signals.
+// Famous brands/people that memecoins impersonate. A coin using one of these names
+// with no real socials is almost always an impersonation scam, not an official token.
+const BRANDS = [
+  'gta','grand theft auto','rockstar','spacex','tesla','google','apple','microsoft','amazon','nvidia','netflix','disney','marvel','nintendo','playstation','xbox','meta','instagram','whatsapp','tiktok','youtube','openai','chatgpt','anthropic','claude','nasa','ferrari','lamborghini','mcdonalds','cocacola','pepsi','nike','adidas','visa','mastercard','paypal','blackrock','vanguard','binance','coinbase','robinhood','elon musk','donald trump','taylor swift','mrbeast','ronaldo','messi'];
+function impersonates(c){
+  const hay = ((c.name||'') + ' ' + (c.symbol||'')).toLowerCase();
+  const hit = BRANDS.find(b => { const re = new RegExp('(^|[^a-z])' + b.replace(/[.*+?^${}()|[\]\\]/g,'\\$&') + '([^a-z]|$)'); return re.test(hay); });
+  if (!hit) return false;
+  // real projects do exist; only flag when there is no credible social footprint
+  const socialCount = (c.xUrl?1:0) + (c.websiteUrl?1:0) + (c.telegramUrl?1:0);
+  return socialCount < 1;   // brand name + zero socials = impersonation
+}
+// A coin whose 1h / 6h / 24h change are all the identical number has no real trading
+// history yet: one burst of trades, then nothing. Classic artificial-pump / fake tell.
+function flatHistory(c){
+  // only meaningful once a coin is old enough to HAVE 6h/24h history.
+  // a 20-minute-old coin legitimately has identical 1h/6h/24h and is not fake for it.
+  const ageH = (Date.now() - (c.created||Date.now())) / 36e5;
+  if (ageH < 8) return false;
+  const a = c.ch1, b = c.ch6, d = c.ch24;
+  if (a == null || b == null || d == null) return false;
+  if (Math.abs(a) < 3) return false;                    // tiny moves are just quiet, not fake
+  return Math.abs(a - b) < 0.5 && Math.abs(b - d) < 0.5;
+}
 function isScam(c){
   const sc = S.scans.get(c.mint), d = dumpSignals(c).level;
+  const ageMin = (Date.now() - c.created) / 60000, tx24 = (c.buys24 || 0) + (c.sells24 || 0), tx1 = c.buys1 + c.sells1;
+  if (impersonates(c)) return true;                               // brand impersonation
   if (d === 'rug') return true;                                   // actively rugging
   if (sc && sc.status !== 'err') {
     if (sc.rugged) return true;                                   // marked rugged
     if (sc.status === 'bundled') return true;                     // insider bundle
     if (sc.mintAuth && sc.freezeAuth) return true;               // full owner control
-    if (sc.top10 != null && sc.top10 > 80) return true;          // extreme concentration
+    if (sc.top10 != null && sc.top10 > 70) return true;          // extreme concentration (tightened)
     if (sc.lpLocked != null && sc.lpLocked < 5 && c.liq < 15000) return true; // unlocked thin LP
+    if (sc.holders != null && sc.holders < 25 && ageMin > 30) return true;    // nobody holding after 30m
   }
   if (c.liq > 0 && c.liq < 600) return true;                      // untradeable dust
-  // price fully collapsed from any recent high
-  if ((c.ch1 ?? 0) <= -85 || (c.ch24 ?? 0) <= -92) return true;
+  if ((c.ch1 ?? 0) <= -85 || (c.ch24 ?? 0) <= -92) return true;   // fully collapsed
+  // artificial pump: flat identical history (only applies to coins >8h old) + barely any volume
+  if (flatHistory(c) && (c.vol24 < 15000 || tx24 < 150)) return true;
+  // pumped hard but almost no traction — only judge coins old enough to have built some.
+  // use 1h activity for young coins so a fresh real runner is not mistaken for a fake.
+  if (ageMin > 60 && (c.ch1 ?? 0) > 60 && c.vol1 < 3000 && tx1 < 40) return true;
+  // decent mcap claimed but liquidity is a rounding error (honeypot shape)
+  if (c.mc > 50000 && c.liq > 0 && c.liq < c.mc * 0.005) return true;
   return false;
 }
 // "Hot" = genuinely active and tradeable right now, and not dumping or rugged.
@@ -1465,11 +1541,24 @@ function riskLevel(c) {
     if (sc.lpLocked != null && sc.lpLocked < 20) warn++; // LP not locked
     if (sc.holders != null && sc.holders < 40) warn++;   // almost no holders
   }
-  if (ageMin < 120 && (c.ch1 ?? 0) > 80) warn++;         // very young + vertical pump
-  if (ageMin < 30) warn++;                               // first 30 min are the riskiest
-  if (sellP > .55 && tx > 60) warn++;                    // sells outpacing buys
-  if (volLiq > 15) warn++;                               // volume churning far above liquidity
-  if (c.liq < 5000) warn++;                              // thin, easy to move
+  // Real traction: lots of genuine trades + volume + a holder base. Proven coins
+  // earn a pass on the "it's young" style warnings that otherwise flag everything new.
+  const tx24 = (c.buys24||0)+(c.sells24||0);
+  const proven = (c.vol24 >= 150000 && tx24 >= 1500) || (sc && sc.holders != null && sc.holders >= 400 && c.vol24 >= 80000);
+  const socialCount = (c.xUrl?1:0) + (c.websiteUrl?1:0) + (c.telegramUrl?1:0);
+
+  if (!proven && ageMin < 120 && (c.ch1 ?? 0) > 80) warn++;   // young + vertical pump (unless proven)
+  if (!proven && ageMin < 30) warn++;                         // first 30 min are riskiest (unless proven)
+  if (sellP > .55 && tx > 60) warn++;                         // sells outpacing buys
+  if (volLiq > 15) warn++;                                    // volume churning far above liquidity
+  if (c.liq < 5000) warn++;                                   // thin, easy to move
+  if (socialCount === 0 && !proven) warn++;                   // no socials and no traction
+  if (flatHistory(c) && !proven) warn++;                      // flat identical candles, no real history
+  if (c.isCopy) { if (proven) warn++; else danger++; }        // copycat of another coin's name
+  // brand name only counts against it when it has NOT proven real traction + socials
+  const hay = ((c.name||'')+' '+(c.symbol||'')).toLowerCase();
+  if (BRANDS.some(bch => hay.includes(bch)) && c.mc < 2e6 && !(proven && socialCount >= 1)) danger++;
+
   if (danger >= 1 || warn >= 3) return 'danger';
   if (warn >= 1) return 'warn';
   return null;
@@ -1489,7 +1578,7 @@ function chipHtml(m) {
 function rowHtml(c, flat) {
   const s = scoreCoin(c), tx = c.buys1 + c.sells1, pc = tx ? c.buys1 / tx * 100 : 50;
   const w = isWatched(c.mint), nar = narrOf(c)[0];
-  const flag = (s.dump === 'rug' || s.dump === 'dump') ? '<span class="tag dump">DUMP</span>' : S.fresh.has(c.mint) ? '<span class="tag">NEW</span>' : '';
+  const flag = (s.dump === 'rug' || s.dump === 'dump') ? '<span class="tag dump">DUMP</span>' : c.isCopy ? '<span class="tag copy" title="'+(c.dupCount)+' other coin(s) share this name">COPY</span>' : S.fresh.has(c.mint) ? '<span class="tag">NEW</span>' : '';
   const base = `<span class="star ${w ? 'on' : ''}" data-star="${c.mint}" role="button" aria-label="Watch ${esc(c.symbol)}">${w ? '★' : '☆'}</span>
     <div class="tok">${icoHtml(c)}<div class="tok-t"><b>${esc(c.symbol)}${flag}</b><small>${esc(c.name)}${nar ? ' · ' + nar : ''}</small></div></div>`;
   if (flat) {
@@ -1579,7 +1668,7 @@ function ovItem(c, n, right, rcls) {
 }
 function ovRow(c) {
   const s = scoreCoin(c), w = isWatched(c.mint);
-  const flag = (s.dump === 'rug' || s.dump === 'dump') ? '<span class="tag dump">DUMP</span>' : S.fresh.has(c.mint) ? '<span class="tag">NEW</span>' : '';
+  const flag = (s.dump === 'rug' || s.dump === 'dump') ? '<span class="tag dump">DUMP</span>' : c.isCopy ? '<span class="tag copy" title="'+(c.dupCount)+' other coin(s) share this name">COPY</span>' : S.fresh.has(c.mint) ? '<span class="tag">NEW</span>' : '';
   return `<div class="row" role="listitem" tabindex="0" data-mint="${c.mint}">
     <span class="star ${w ? 'on' : ''}" data-star="${c.mint}">${w ? '★' : '☆'}</span>
     <div class="tok">${icoHtml(c)}<div class="tok-t"><b>${esc(c.symbol)}${flag}</b><small>${esc(c.name)}</small></div></div>
@@ -1812,12 +1901,19 @@ function pickSignal() {
   // best healthy coin right now: clean scan, no high risk, real liquidity + volume, buyers in control
   const cands = [...S.coins.values()].filter(c => {
     const sc = S.scans.get(c.mint);
-    if (!sc || sc.status !== 'clean') return false;
-    if (riskLevel(c) === 'danger') return false;
-    if (dumpSignals(c).level !== 'none') return false;
-    if (isScam(c)) return false;
+    if (!sc || sc.status !== 'clean') return false;       // clean bundle scan only
+    if (riskLevel(c)) return false;                       // no danger AND no warnings
+    if (dumpSignals(c).level !== 'none') return false;    // not dumping
+    if (isScam(c) || impersonates(c)) return false;       // no scams or brand fakes
+    if (c.isCopy) return false;                           // never signal a copycat
+    const socialCount = (c.xUrl?1:0) + (c.websiteUrl?1:0) + (c.telegramUrl?1:0);
+    if (socialCount < 1) return false;                    // must have a real social presence
+    if (sc.holders != null && sc.holders < 80) return false; // needs a real holder base
+    if (sc.mintAuth || sc.freezeAuth) return false;       // authorities must be renounced
+    if (sc.top10 != null && sc.top10 > 35) return false;  // not concentrated
+    if (sc.lpLocked != null && sc.lpLocked < 50) return false; // LP meaningfully locked
     const tx = c.buys1 + c.sells1, bp = tx ? c.buys1 / tx : .5;
-    return c.liq >= 8000 && c.vol24 >= 20000 && tx >= 40 && bp >= .5;
+    return c.liq >= 12000 && c.vol24 >= 30000 && tx >= 60 && bp >= .52;
   }).map(c => ({ c, s: scoreCoin(c).total })).sort((a, b) => b.s - a.s);
   return cands[0] || null;
 }
