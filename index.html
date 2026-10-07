@@ -1,253 +1,1934 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ZIMR · Tools for crypto creators</title>
-<style>
-  @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
-  *{margin:0;padding:0;box-sizing:border-box;}
-  :root{--bg:#090909;--panel:#0f0f0f;--bd:#1c1c1c;--acc:#9b59d6;--acc2:#6366f1;--tx:#e8e8e8;--mut:#6b6b6b;}
-  html{scroll-behavior:smooth;}
-  body{font-family:'Plus Jakarta Sans',system-ui,sans-serif;background:var(--bg);color:var(--tx);line-height:1.6;-webkit-font-smoothing:antialiased;}
-  .mono{font-family:'JetBrains Mono',monospace;}
-  a{color:inherit;text-decoration:none;}
-  .wrap{max-width:1080px;margin:0 auto;padding:0 22px;}
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>ZIMR Terminal V4</title>
+  <meta name="description" content="Every new Solana memecoin, scanned for bundles and scored before you ape.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+:root{
+  --bg:#0d0d0d;--panel:#131115;--panel2:#18151c;--line:#251f2d;--line2:#322a3d;
+  --cream:#e8e0d8;--mut:#8d8596;--dim:#5f5869;
+  --p:#9b59d6;--p2:#bb8ef2;--pg:rgba(155,89,214,.16);
+  --g:#5fd38d;--r:#ff6b6b;--a:#f5b84a;
+  --sans:'Plus Jakarta Sans',system-ui,sans-serif;--mono:'JetBrains Mono',ui-monospace,monospace;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--cream);font-family:var(--sans);-webkit-font-smoothing:antialiased}
+button{font:inherit;color:inherit;cursor:pointer;background:none;border:0;padding:0}
+input{font:inherit;color:inherit}
+.hidden{display:none!important}
+.muted{color:var(--mut)}.small{font-size:12px}
+.g{color:var(--g)}.r{color:var(--r)}.a{color:var(--a)}
+:focus-visible{outline:2px solid var(--p2);outline-offset:2px}
+::-webkit-scrollbar{width:8px;height:8px}::-webkit-scrollbar-thumb{background:#2a2432;border-radius:8px}
 
-  /* NAV */
-  nav{position:sticky;top:0;z-index:50;background:rgba(9,9,9,.82);backdrop-filter:blur(14px);border-bottom:1px solid var(--bd);}
-  .nav-in{max-width:1080px;margin:0 auto;padding:14px 22px;display:flex;align-items:center;gap:14px;}
-  .logo{display:flex;align-items:center;gap:9px;font-weight:800;font-size:17px;}
-  .logo .dot{width:22px;height:22px;border-radius:6px;background:linear-gradient(135deg,var(--acc),var(--acc2));display:flex;align-items:center;justify-content:center;font-size:12px;}
-  .nav-links{margin-left:auto;display:flex;gap:26px;align-items:center;font-size:14px;color:var(--mut);}
-  .nav-links a:hover{color:var(--tx);}
-  .btn{display:inline-flex;align-items:center;gap:8px;padding:10px 18px;border-radius:9px;font-weight:600;font-size:14px;cursor:pointer;border:1px solid transparent;transition:all .15s;font-family:inherit;}
-  .btn-p{background:linear-gradient(135deg,var(--acc),var(--acc2));color:#fff;box-shadow:0 4px 18px rgba(155,89,214,.32);}
-  .btn-p:hover{transform:translateY(-1px);}
-  .btn-o{background:transparent;border-color:var(--bd);color:var(--tx);}
-  .btn-o:hover{border-color:var(--acc);}
+#stars{position:fixed;inset:0;width:100%;height:100%;z-index:0;transition:opacity .6s}
+#stars.off{opacity:0;pointer-events:none}
 
-  /* HERO */
-  header{padding:90px 0 60px;text-align:center;position:relative;overflow:hidden;}
-  header::before{content:"";position:absolute;top:-200px;left:50%;transform:translateX(-50%);width:760px;height:520px;background:radial-gradient(ellipse,rgba(155,89,214,.16),transparent 65%);pointer-events:none;}
-  .kick{display:inline-block;font-size:12px;letter-spacing:2px;color:var(--acc);border:1px solid rgba(155,89,214,.3);background:rgba(155,89,214,.07);padding:5px 14px;border-radius:20px;margin-bottom:22px;}
-  header h1{font-size:48px;line-height:1.1;font-weight:800;letter-spacing:-.02em;max-width:760px;margin:0 auto 18px;}
-  header h1 .g{background:linear-gradient(135deg,var(--acc),#c98bff);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;}
-  header p{font-size:18px;color:var(--mut);max-width:560px;margin:0 auto 30px;}
-  .hero-cta{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;}
-  .hero-note{margin-top:18px;font-size:13px;color:var(--mut);}
+.brand{font-weight:800;font-size:26px;letter-spacing:-.06em}
+.kicker{font:500 11px var(--mono);letter-spacing:.16em;text-transform:uppercase;color:var(--p2);margin:0 0 18px}
+.primary{background:var(--p);color:#fff;font-weight:700;padding:15px 26px;border-radius:8px;transition:background .15s,transform .15s}
+.primary:hover{background:#ad6fe6}.primary:active{transform:translateY(1px)}
+.ghost{border:1px solid var(--line2);border-radius:7px;padding:8px 14px;font-size:12px;font-weight:600;color:var(--cream)}
+.ghost:hover{border-color:var(--p)}
 
-  /* PRODUCTS */
-  .section{padding:60px 0;}
-  .sec-head{text-align:center;margin-bottom:44px;}
-  .sec-head h2{font-size:32px;font-weight:800;letter-spacing:-.01em;margin-bottom:8px;}
-  .sec-head p{color:var(--mut);font-size:16px;}
-  .products{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
-  .card{background:var(--panel);border:1px solid var(--bd);border-radius:18px;padding:30px;position:relative;overflow:hidden;transition:border-color .2s;}
-  .card:hover{border-color:rgba(155,89,214,.4);}
-  .card .glow{position:absolute;top:-80px;right:-80px;width:240px;height:240px;border-radius:50%;background:radial-gradient(circle,rgba(155,89,214,.12),transparent 70%);pointer-events:none;}
-  .soon{position:absolute;top:18px;right:18px;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:1px;color:var(--acc);border:1px solid rgba(155,89,214,.4);background:rgba(155,89,214,.1);padding:4px 9px;border-radius:6px;}
-  .card.dim{opacity:.82;}
-  .p-icon{width:52px;height:52px;border-radius:14px;background:linear-gradient(135deg,var(--acc),var(--acc2));display:flex;align-items:center;justify-content:center;font-size:24px;margin-bottom:18px;}
-  .card h3{font-size:22px;font-weight:700;margin-bottom:4px;}
-  .card .sub{color:var(--acc);font-size:13px;font-weight:600;margin-bottom:14px;}
-  .card .desc{color:var(--mut);font-size:14.5px;margin-bottom:20px;}
-  .feat{list-style:none;margin-bottom:24px;}
-  .feat li{display:flex;gap:10px;align-items:flex-start;font-size:14px;color:var(--tx);padding:6px 0;}
-  .feat li svg{width:16px;height:16px;flex-shrink:0;margin-top:3px;color:var(--acc);}
-  .price-row{display:flex;align-items:baseline;gap:8px;margin-bottom:18px;}
-  .price{font-size:34px;font-weight:800;}
-  .price-sub{color:var(--mut);font-size:13px;}
-  .card .btn{width:100%;justify-content:center;}
+/* ---------- login gate ---------- */
+body.gate-on{background:
+  radial-gradient(ellipse at 70% 30%,#efe9fb,transparent 55%),
+  radial-gradient(ellipse at 20% 80%,#e9e4f8,transparent 50%),#ece7f6}
+.gate{position:relative;z-index:2;min-height:100vh;display:grid;place-items:center;padding:24px;background:transparent}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--g);box-shadow:0 0 10px var(--g);display:inline-block}
+.dot.demo{background:var(--a);box-shadow:0 0 10px var(--a)}
+.login{position:relative;z-index:1;width:min(1040px,100%);display:grid;grid-template-columns:1fr 1fr;gap:0;background:#1a181d;border:1px solid #2a2630;border-radius:18px;overflow:hidden;box-shadow:0 40px 120px rgba(40,20,70,.35)}
+.login-left{padding:48px 44px}
+.login-right{padding:48px 44px;border-left:1px solid #252029;background:#161419}
+.login-brand{display:flex;align-items:center;gap:13px;margin-bottom:38px}
+.login-logo{width:46px;height:46px;border-radius:12px;background:linear-gradient(145deg,#a86fe0,#7d44c4);display:grid;place-items:center;font:800 24px var(--sans);color:#fff;box-shadow:0 6px 18px rgba(155,89,214,.45)}
+.login-brand b{font-size:19px;letter-spacing:-.02em;display:block}
+.login-brand small{font:10px var(--mono);letter-spacing:.14em;color:var(--mut)}
+.login h1{font-size:clamp(40px,5vw,60px);line-height:.95;letter-spacing:-.04em;font-weight:800;margin:0 0 22px}
+.login h1 span{color:var(--p2)}
+.login .lede{font-size:15px;line-height:1.6;color:#aaa2b4;max-width:400px;margin:0 0 30px}
+.login-feats{list-style:none;margin:0 0 28px;padding:0;display:flex;flex-direction:column;gap:12px}
+.login-feats li{position:relative;padding-left:20px;font-size:14px;color:#cfc8da}
+.login-feats li:before{content:"";position:absolute;left:0;top:7px;width:7px;height:7px;border-radius:50%;background:var(--p2);box-shadow:0 0 8px var(--p)}
+.login-stats{font:11px var(--mono);color:var(--dim)}.login-stats span{color:var(--p2)}
+.fld{display:block;font:600 11px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--mut);margin-bottom:18px}
+.fld .opt{text-transform:none;letter-spacing:0;color:var(--dim);font-weight:400}
+.fld input{display:block;width:100%;margin-top:9px;background:#201c26;border:1px solid #322c3c;border-radius:10px;padding:14px 15px;font:15px var(--sans);color:var(--cream);outline:0;text-transform:none;letter-spacing:0}
+.fld input:focus{border-color:var(--p)}
+.login-go{width:100%;margin-top:8px;padding:16px;font-size:15px;border-radius:10px}
+.start{position:relative;z-index:1;width:min(560px,100%);text-align:center;background:#1a181d;border:1px solid #2a2630;border-radius:20px;padding:54px 44px;box-shadow:0 40px 120px rgba(40,20,70,.35)}
+.start-brand{display:inline-flex;align-items:center;gap:13px;margin-bottom:30px}
+.start-brand b{font-size:19px;letter-spacing:-.02em;display:block;text-align:left}
+.start-brand small{font:10px var(--mono);letter-spacing:.14em;color:var(--mut);display:block;text-align:left}
+.start h1{font-size:clamp(42px,6vw,66px);line-height:.95;letter-spacing:-.05em;font-weight:800;margin:0 0 20px}
+.start h1 span{color:var(--p2)}
+.start .lede{font-size:16px;line-height:1.6;color:#aaa2b4;max-width:380px;margin:0 auto 26px}
+.start-stats{font:11px var(--mono);color:var(--dim);margin-bottom:28px}.start-stats span{color:var(--p2)}
+.start-go{width:100%;max-width:280px;margin:0 auto;padding:17px;font-size:16px;border-radius:11px}
+.login-msg{font:12px var(--mono);color:var(--a);margin-top:12px;min-height:14px;text-align:center}
+.login-foot{margin:22px 0 0;font:10px var(--mono);color:var(--dim);text-align:center}
 
-  .bundle{margin-top:20px;background:linear-gradient(135deg,rgba(155,89,214,.1),rgba(99,102,241,.06));border:1px solid rgba(155,89,214,.3);border-radius:16px;padding:22px 26px;display:flex;align-items:center;gap:20px;flex-wrap:wrap;}
-  .bundle .bt{font-weight:700;font-size:17px;}
-  .bundle .bd{color:var(--mut);font-size:14px;}
-  .bundle .bp{margin-left:auto;display:flex;align-items:center;gap:16px;}
-  .bundle .bprice{font-size:26px;font-weight:800;}
-  .strike{color:var(--mut);text-decoration:line-through;font-size:15px;font-weight:500;}
+/* matrix transition */
+.matrix{position:fixed;inset:0;z-index:100;background:#000}
+.matrix canvas{width:100%;height:100%;display:block}
+.matrix-text{position:absolute;inset:0;display:grid;place-items:center;text-align:center;font:800 clamp(24px,5vw,56px) var(--sans);letter-spacing:-.02em;color:#caffb8;text-shadow:0 0 24px rgba(95,255,120,.7);opacity:0;transition:opacity .5s}
+.matrix-text.show{opacity:1}
+.matrix-text small{display:block;margin-top:14px;font:500 13px var(--mono);letter-spacing:.2em;color:#7de88a;text-shadow:none}
 
-  /* HOW */
-  .steps{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;}
-  .step{background:var(--panel);border:1px solid var(--bd);border-radius:14px;padding:24px;}
-  .step .n{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--acc);margin-bottom:10px;}
-  .step h4{font-size:16px;font-weight:700;margin-bottom:6px;}
-  .step p{font-size:13.5px;color:var(--mut);}
+/* ---------- shell ---------- */
+.app{position:relative;z-index:1}
+.topbar{position:fixed;top:0;left:0;right:0;height:58px;z-index:20;display:flex;align-items:center;gap:20px;padding:0 18px;background:rgba(13,13,13,.94);border-bottom:1px solid var(--line);backdrop-filter:blur(8px)}
+.topbar .brand{font-size:23px}
+.search{display:flex;align-items:center;gap:8px;width:min(430px,34vw);background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:0 12px;height:36px;color:var(--mut)}
+.search:focus-within{border-color:var(--p)}
+.search input{flex:1;background:none;border:0;outline:0;font:12px var(--mono);color:var(--cream);min-width:0}
+.pulse{flex:1;font:11px var(--mono);color:var(--mut);display:flex;gap:18px;overflow:hidden;white-space:nowrap}
+.pulse b{color:var(--cream);font-weight:500;margin-right:5px}
+.top-right{display:flex;align-items:center;gap:10px}
+.chip-top{font:600 11px var(--mono);padding:6px 10px;border:1px solid var(--line2);border-radius:6px;display:inline-flex;align-items:center;gap:7px;white-space:nowrap}
+.sidebar{position:fixed;top:58px;bottom:0;left:0;width:184px;z-index:15;padding:14px 10px;border-right:1px solid var(--line);background:var(--bg);display:flex;flex-direction:column;gap:2px}
+.nav{display:flex;align-items:center;gap:11px;height:39px;padding:0 12px;border-radius:7px;color:var(--mut);font-size:13px;font-weight:500;text-align:left;border-left:2px solid transparent}
+.nav i{font-style:normal;width:16px;text-align:center;color:var(--dim)}
+.nav:hover{color:var(--cream);background:var(--panel)}
+.nav.active{color:var(--cream);background:var(--panel2);border-left-color:var(--p)}.nav.active i{color:var(--p2)}
+.nav em{margin-left:auto;font:600 10px var(--mono);font-style:normal;background:var(--pg);color:var(--p2);padding:2px 6px;border-radius:4px}
+.side-foot{margin-top:auto;padding:10px 12px;font:10px var(--mono);color:var(--dim)}
+.main{position:fixed;top:58px;left:184px;right:0;bottom:0;padding:12px;overflow:hidden}
+.view{height:100%;overflow:auto}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:10px}
+.panel.pad{padding:20px}
+.sec-head{display:flex;align-items:baseline;justify-content:space-between;gap:14px;margin-bottom:10px;flex-wrap:wrap}
+.sec-head h2{margin:0;font-size:18px;letter-spacing:-.02em}
 
-  footer{border-top:1px solid var(--bd);padding:34px 0;text-align:center;color:var(--mut);font-size:13px;}
+/* ---------- radar ---------- */
+.radar{display:block;height:100%}
+/* coin detail as a wide slide-in drawer */
+#detailRadar{position:fixed;top:58px;right:0;bottom:0;width:min(640px,94vw);z-index:40;border-radius:0;border-left:1px solid var(--line2);background:#0f0e13;transform:translateX(102%);transition:transform .28s cubic-bezier(.4,0,.2,1);box-shadow:-20px 0 60px rgba(0,0,0,.5)}
+#detailRadar.open{transform:none}
+#detailBackdrop{position:fixed;inset:58px 0 0 0;z-index:39;background:rgba(5,4,8,.55);backdrop-filter:blur(2px);opacity:0;pointer-events:none;transition:opacity .28s}
+#detailBackdrop.open{opacity:1;pointer-events:auto}
+#detailRadar .chartbox{height:440px}
+#detailRadar .d-close{display:block}
+.left{display:flex;flex-direction:column;gap:12px;min-height:0;min-width:0}
+.briefing{display:grid;grid-template-columns:1.3fr 1.5fr 1fr;gap:12px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px 16px;text-align:left;position:relative;min-height:92px}
+.card .lbl{font:500 10px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--mut);display:block;margin-bottom:10px}
+.cotd{background:linear-gradient(135deg,rgba(155,89,214,.22),var(--panel) 70%);border-color:#3b2a4f;display:block;width:100%}
+.cotd:hover{border-color:var(--p)}
+.cotd-body{padding-right:56px}
+.cotd-body b{display:block;font-size:22px;letter-spacing:-.03em}
+.cotd-body span{font:11px var(--mono);color:var(--mut)}
+.cotd .ring{position:absolute;right:14px;top:50%;transform:translateY(-50%);width:46px;height:46px;font-size:14px}
+.narr{display:flex;flex-wrap:wrap;gap:6px}
+.narr button{font:600 11px var(--mono);padding:5px 9px;border-radius:6px;border:1px solid var(--line2);color:var(--cream)}
+.narr button:hover,.narr button.sel{border-color:var(--p);background:var(--pg)}
+.narr button small{display:inline;margin:0 0 0 6px;color:var(--p2);font-size:10px}
+.streak{display:flex;align-items:baseline;gap:9px}.streak b{font-size:34px;letter-spacing:-.04em;line-height:1}
+.streak span{font:600 11px var(--mono);color:var(--p2)}
+.card small{display:block;margin-top:8px;font:10px var(--mono);color:var(--dim)}
 
-  /* MODAL */
-  .ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(4px);z-index:100;align-items:center;justify-content:center;padding:20px;}
-  .ov.on{display:flex;}
-  .modal{background:var(--panel);border:1px solid var(--bd);border-radius:18px;max-width:440px;width:100%;padding:28px;position:relative;}
-  .modal .x{position:absolute;top:16px;right:16px;width:30px;height:30px;border-radius:8px;border:none;background:rgba(255,255,255,.05);color:var(--mut);cursor:pointer;font-size:15px;}
-  .modal .x:hover{background:rgba(255,255,255,.1);color:#fff;}
-  .modal h3{font-size:20px;font-weight:700;margin-bottom:4px;}
-  .modal .mp{color:var(--acc);font-weight:700;font-size:18px;margin-bottom:18px;}
-  .modal .btn{width:100%;justify-content:center;margin-bottom:14px;}
-  .mdiv{display:flex;align-items:center;gap:12px;color:var(--mut);font-size:12px;margin:6px 0 16px;}
-  .mdiv::before,.mdiv::after{content:"";flex:1;height:1px;background:var(--bd);}
-  .manual{background:#0c0c0c;border:1px solid var(--bd);border-radius:12px;padding:16px;font-size:13px;color:var(--mut);line-height:1.6;}
-  .manual b{color:var(--tx);}
-  .addr{font-family:'JetBrains Mono',monospace;font-size:11.5px;color:var(--tx);background:rgba(255,255,255,.04);padding:7px 10px;border-radius:7px;margin:5px 0;word-break:break-all;display:block;}
+.tape{display:flex;align-items:center;gap:0;height:30px;border-bottom:1px solid var(--line);overflow:hidden;background:#100e14;position:relative}
+.tape-lbl{flex:0 0 auto;height:100%;display:flex;align-items:center;gap:6px;padding:0 11px;font:700 9px var(--mono);letter-spacing:.12em;color:#ff5fa2;border-right:1px solid var(--line);background:var(--bg);z-index:1}
+.tape-lbl i{width:6px;height:6px;border-radius:50%;background:#ff5fa2;box-shadow:0 0 8px #ff5fa2;animation:pulse 1.1s infinite}
+.tape-track{display:flex;align-items:center;gap:0;white-space:nowrap;min-width:0}
+.tape-ev{display:inline-flex;align-items:center;gap:6px;padding:0 13px;font:11px var(--mono);border-right:1px solid #1a161f;animation:tapein .4s ease}
+@keyframes tapein{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
+.tape-ev .side{font-weight:700;font-size:9px;padding:1px 5px;border-radius:3px}
+.tape-ev .side.buy{color:#5fd38d;background:rgba(95,211,141,.14)}
+.tape-ev .side.sell{color:#ff6b6b;background:rgba(255,107,107,.14)}
+.tape-ev b{color:var(--cream);font-weight:600}
+.tape-ev .amt{color:var(--mut)}
+.movers{display:flex;align-items:stretch;height:34px;border-bottom:1px solid var(--line);overflow:hidden;background:linear-gradient(90deg,rgba(155,89,214,.1),transparent 40%)}
+.mv-lbl{flex:0 0 auto;font:700 10px var(--mono);letter-spacing:.1em;color:var(--p2);padding:0 12px;border-right:1px solid var(--line);display:flex;align-items:center;background:var(--bg);z-index:1;white-space:nowrap}
+.mv-empty{font:11px var(--mono);color:var(--mut);display:flex;align-items:center;padding-left:12px}
+.mv-track{display:flex;align-items:center;white-space:nowrap;animation:marq 26s linear infinite;will-change:transform;min-width:0}
+.movers:hover .mv-track{animation-play-state:paused}
+@keyframes marq{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+.mv{display:inline-flex;align-items:center;gap:7px;padding:0 14px;font:12px var(--mono);border-right:1px solid #1a161f}
+.mv b{color:var(--cream);font-weight:600}.mv:hover b{color:var(--p2)}
+/* ---------- overview ---------- */
+.ov{max-width:1280px;margin:0 auto;padding:4px 2px 40px}
+.ov-hero{padding:10px 4px 26px}
+.ov-hero h1{font-size:clamp(34px,4.4vw,52px);letter-spacing:-.04em;font-weight:800;margin:10px 0 12px;line-height:1}
+.ov-hero h1 span{color:var(--p2)}
+.ov-sub{color:#b5adbd;font-size:16px;margin:0 0 14px}
+.ov-snap{font:11px var(--mono);color:var(--dim);display:flex;align-items:center;gap:8px}
+.ov-snap:before{content:"";width:7px;height:7px;border-radius:50%;background:var(--g);box-shadow:0 0 10px var(--g);animation:pulse 1.4s infinite}
+.ov-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:12px}
+.ov-stat{background:linear-gradient(145deg,var(--panel),#121016);border:1px solid var(--line);border-radius:14px;padding:20px}
+.ov-stat-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.ov-stat-top span{font:600 11px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--mut)}
+.ov-stat-top i{font-style:normal;color:var(--p2);opacity:.6}
+.ov-stat b{font:800 38px var(--sans);letter-spacing:-.03em;display:block;line-height:1}
+.ov-stat small{display:block;margin-top:8px;font:11px var(--mono);color:var(--dim)}
+.ov-feature{display:grid;grid-template-columns:1.3fr 1fr 1fr;gap:12px;margin-bottom:22px}
+.ov-cta-card{position:relative;overflow:hidden;text-align:left;background:linear-gradient(145deg,#2a1d47,#1a1030);border:1px solid #3b2a5f;border-radius:16px;padding:26px;color:var(--cream)}
+.ov-cta-card:hover{border-color:var(--p)}
+.ov-cta-card h2{font-size:30px;letter-spacing:-.03em;line-height:1.05;margin:8px 0 12px}
+.ov-cta-card p{color:#c3b9d6;font-size:13px;line-height:1.6;max-width:320px;margin:0 0 18px}
+.ov-cta-btn{display:inline-block;background:#fff;color:#1a1030;font-weight:700;font-size:13px;padding:11px 18px;border-radius:9px}
+.ov-radar-deco{position:absolute;right:-40px;bottom:-40px;width:220px;height:220px;opacity:.5;pointer-events:none}
+.ov-radar-deco i{position:absolute;inset:0;margin:auto;border:1px solid rgba(187,142,242,.4);border-radius:50%}
+.ov-radar-deco i:nth-child(1){width:90px;height:90px}.ov-radar-deco i:nth-child(2){width:150px;height:150px}.ov-radar-deco i:nth-child(3){width:210px;height:210px}
+.ov-radar-deco span{position:absolute;inset:0;margin:auto;width:40px;height:40px;display:grid;place-items:center;color:var(--p2);font-size:24px;animation:pulse 2s infinite}
+.ov-panel{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:18px}
+.ov-panel-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px}
+.ov-panel-head b{font-size:15px}
+.ov-panel-sub{font:11px var(--mono);color:var(--dim);margin:0 0 12px}
+.ov-link{font:600 12px var(--mono);color:var(--p2)}.ov-link:hover{color:var(--cream)}
+.ov-list{display:flex;flex-direction:column;gap:2px}
+.ov-item{display:flex;align-items:center;gap:11px;padding:9px 8px;border-radius:9px;cursor:pointer}
+.ov-item:hover{background:var(--panel2)}
+.ov-item .rankn{font:700 12px var(--mono);color:var(--dim);width:16px}
+.ov-item .coin-ico{width:30px;height:30px;flex-basis:30px}
+.ov-item .oi-name{flex:1;min-width:0}
+.ov-item .oi-name b{display:block;font:600 13px var(--sans);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ov-item .oi-name small{display:block;font:10px var(--mono);color:var(--dim)}
+.ov-item .oi-ch{font:700 13px var(--mono);text-align:right}
+.ov-empty{padding:22px;text-align:center;color:var(--mut);font:12px var(--mono)}
+.ov-rankings{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:20px}
+.ov-rankings .sec-head{margin-bottom:2px}
+.ov-thead{margin-top:14px;grid-template-columns:28px minmax(150px,1.6fr) 60px 90px 100px 80px 90px 96px 56px}
+.ov-rankings .rows{max-height:none}
+.ov-rankings .rows .row{grid-template-columns:28px minmax(150px,1.6fr) 60px 90px 100px 80px 90px 96px 56px}
+@media(max-width:1100px){.ov-feature{grid-template-columns:1fr}.ov-stats{grid-template-columns:1fr 1fr}}
+@media(max-width:700px){.ov-stats{grid-template-columns:1fr}.ov-thead .c-vol,.ov-thead .c-liq,.ov-rankings .row .c-vol,.ov-rankings .row .c-liq{display:none}}
 
-  @media(max-width:780px){
-    .products{grid-template-columns:1fr;}
-    .steps{grid-template-columns:1fr;}
-    header h1{font-size:34px;}
-    .nav-links a:not(.btn){display:none;}
-    .bundle .bp{margin-left:0;width:100%;}
-  }
+.feed{display:flex;flex-direction:column;flex:1;min-height:0;overflow:hidden}
+
+/* V4 discovery layer */
+.source-strip{display:flex;align-items:center;gap:7px;padding:8px 12px;border-bottom:1px solid var(--line);background:linear-gradient(90deg,rgba(120,80,255,.08),rgba(40,180,255,.04),transparent);font-size:10px;text-transform:uppercase;letter-spacing:.08em}
+.source-title{font-weight:800;color:var(--text);margin-right:4px}.source-pill{padding:4px 8px;border:1px solid var(--line2);border-radius:999px;color:var(--mut);background:rgba(255,255,255,.025)}.source-pill.live{color:#b9f7d0;border-color:rgba(76,220,140,.28);background:rgba(76,220,140,.06)}.source-count{margin-left:auto;color:var(--mut)}
+.source-pill{cursor:pointer;transition:.15s}.source-pill:hover{border-color:var(--p2);color:var(--text)}.source-pill.off{opacity:.45}.source-pill.hot{color:#f4d28a;border-color:rgba(245,184,74,.35);background:rgba(245,184,74,.05)}
+.source-pill .src-dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:#6f7480;margin-right:5px;vertical-align:1px}.source-pill.live .src-dot{background:#63dc91;box-shadow:0 0 7px rgba(99,220,145,.7)}.source-pill.hot .src-dot{background:#f5b84a;box-shadow:0 0 7px rgba(245,184,74,.6)}
+.profile-top{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}.theme-line{display:flex;align-items:center;gap:6px;flex-wrap:wrap;font-size:13px;margin-top:3px}.source-badge{font:700 9px var(--mono);letter-spacing:.04em;padding:3px 5px;border:1px solid var(--line2);border-radius:999px;color:var(--p2)}.profile-score{font:800 24px var(--mono)}.profile-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-top:11px}.profile-grid>div{padding:8px;border:1px solid var(--line);border-radius:7px;background:rgba(255,255,255,.018)}.profile-grid span{display:block;color:var(--mut);font:500 9px var(--mono);text-transform:uppercase}.profile-grid b{display:block;margin-top:3px;font-size:11px}.s-hi{color:var(--g)}.s-mid{color:var(--a)}@media(max-width:700px){.profile-grid{grid-template-columns:1fr 1fr}}
+.detail-meta{display:flex;flex-wrap:wrap;gap:7px;padding:0 16px 12px}.meta-pill{font:600 10px var(--mono);padding:5px 8px;border:1px solid var(--line2);border-radius:999px;color:var(--mut);background:rgba(255,255,255,.025)}.meta-pill b{color:var(--text)}
+.about-box{margin:0 16px 14px;padding:12px;border:1px solid var(--line2);border-radius:9px;background:rgba(255,255,255,.018)}.about-box h5{margin:0 0 7px;font-size:11px;text-transform:uppercase;letter-spacing:.08em}.about-box p{margin:0;color:var(--mut);font-size:12px;line-height:1.55}.links-row{display:flex;flex-wrap:wrap;gap:7px;margin-top:10px}.links-row a{font:600 11px var(--sans);color:var(--cream);text-decoration:none;padding:7px 9px;border:1px solid var(--line2);border-radius:6px}.links-row a:hover{border-color:var(--p);color:#fff}
+
+@media(max-width:800px){.source-strip{overflow:auto}.source-count{margin-left:8px;white-space:nowrap}}
+
+.feed-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:0 12px;height:46px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.tabs,.ages{display:flex;align-items:center;gap:4px}
+.tabs button{padding:7px 12px;border-radius:6px;font-size:12px;font-weight:600;color:var(--mut)}
+.tabs button:hover{color:var(--cream)}.tabs button.sel{background:var(--panel2);color:var(--cream)}
+.ages{font:10px var(--mono);color:var(--dim)}.ages span{margin-right:5px}
+.ages button{padding:4px 8px;border-radius:5px;font:500 10px var(--mono);color:var(--mut)}
+.ages button.sel{background:var(--pg);color:var(--p2)}
+.row{display:grid;grid-template-columns:30px minmax(150px,1.7fr) 54px 74px 74px 76px 92px 104px 52px;gap:8px;align-items:center;padding:0 14px}
+.thead{height:32px;font:500 9px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--dim);border-bottom:1px solid var(--line)}
+.rows{overflow:auto;flex:1;min-height:0}
+.rows .row{height:58px;border-bottom:1px solid #1a161f;cursor:pointer;font:12px var(--mono);transition:background .12s}
+.rows .row:hover{background:var(--panel2)}
+.rows .row.active{background:var(--panel2);box-shadow:inset 2px 0 0 var(--p)}
+.rows .row.new{animation:flash 2.4s ease-out}
+@keyframes flash{0%{background:rgba(155,89,214,.35)}100%{background:transparent}}
+.star{font-size:15px;color:var(--dim);text-align:center}.star:hover{color:var(--a)}.star.on{color:var(--a)}
+.tok{display:flex;align-items:center;gap:10px;min-width:0}
+.coin-ico{width:32px;height:32px;border-radius:50%;background:var(--panel2);flex:0 0 32px;object-fit:cover;display:grid;place-items:center;font:700 12px var(--sans);color:var(--p2);border:1px solid var(--line2);overflow:hidden}
+.tok-t{min-width:0}.tok-t b{display:block;font:600 13px var(--sans);color:var(--cream);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tok-t small{display:block;font:10px var(--mono);color:var(--dim);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tag{font:700 8px var(--mono);letter-spacing:.06em;background:var(--p);color:#fff;padding:2px 5px;border-radius:3px;margin-left:6px;vertical-align:2px}
+.tag.dump{background:var(--r);color:#2a0d0d}
+.bsbar{height:4px;border-radius:3px;background:var(--r);overflow:hidden;margin-bottom:5px}.bsbar i{display:block;height:100%;background:var(--g)}
+.bs small{font-size:10px;color:var(--mut)}
+.chip{display:inline-flex;align-items:center;gap:6px;font:600 10px var(--mono);padding:5px 8px;border-radius:5px;border:1px solid;white-space:nowrap}
+.chip.clean{color:var(--g);border-color:#244a33;background:rgba(95,211,141,.07)}
+.chip.sus{color:var(--a);border-color:#524322;background:rgba(245,184,74,.07)}
+.chip.bundled{color:var(--r);border-color:#5a2a2a;background:rgba(255,107,107,.09)}
+.chip.pend{color:var(--mut);border-color:var(--line2)}.chip.pend:before{content:"";width:6px;height:6px;border-radius:50%;background:var(--p);animation:pulse 1s infinite}
+@keyframes pulse{50%{opacity:.25}}
+.sc{font:700 13px var(--mono);text-align:center;border-radius:6px;padding:3px 0}
+.rows .sc.s-hi{color:#071a0e;background:var(--g)}
+.rows .sc.s-mid{color:#fff;background:var(--p)}
+.rows .sc.s-lo{color:#1c1405;background:var(--a)}
+.rows .sc.s-bad{color:#fff;background:var(--r)}
+.s-hi{color:var(--g)}.s-mid{color:var(--p2)}.s-lo{color:var(--a)}.s-bad{color:var(--r)}
+.empty{padding:40px;text-align:center;color:var(--mut);font-size:13px}
+.rows.flat .row{grid-template-columns:30px minmax(150px,1.6fr) 80px 90px 100px 90px 52px 30px}
+
+/* ---------- detail ---------- */
+.detail{overflow:auto;min-height:0}
+.detail.static{min-height:420px}
+.d-empty{padding:50px 26px;color:var(--mut);text-align:center;font-size:13px;line-height:1.7}
+.d-head{display:flex;align-items:center;gap:12px;padding:16px}
+.d-head .coin-ico{width:42px;height:42px;flex-basis:42px}
+.d-head h3{margin:0;font-size:19px;letter-spacing:-.03em}
+.d-head small{display:block;font:11px var(--mono);color:var(--mut);margin-top:3px;cursor:pointer}.d-head small:hover{color:var(--p2)}
+.d-close{margin-left:auto;display:none;font-size:22px;color:var(--mut);padding:4px 10px}
+.chartbox{height:250px;border-top:1px solid var(--line);border-bottom:1px solid var(--line);background:#0f0d12;position:relative}
+.chartbox iframe{width:100%;height:100%;border:0;display:block}
+.chartbox svg{width:100%;height:100%;display:block}
+.chartbox .demo-tag{position:absolute;top:8px;left:10px;font:9px var(--mono);color:var(--dim)}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);border-bottom:1px solid var(--line)}
+.stats div{padding:12px 16px;border-right:1px solid var(--line);border-bottom:1px solid var(--line)}
+.stats div:nth-child(3n){border-right:0}.stats div:nth-last-child(-n+3){border-bottom:0}
+.stats span{display:block;font:9px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--dim);margin-bottom:6px}
+.stats b{font:500 14px var(--mono)}
+.verdict{margin:16px;padding:16px;border-radius:10px;border:1px solid;display:grid;grid-template-columns:1fr auto;gap:6px 14px;align-items:center}
+.verdict h4{margin:0;font-size:20px;letter-spacing:-.03em}
+.verdict p{margin:0;font-size:12px;color:var(--mut);grid-column:1}
+.v-hi{border-color:#244a33;background:linear-gradient(135deg,rgba(95,211,141,.12),transparent)}
+.v-mid{border-color:#3b2a4f;background:linear-gradient(135deg,rgba(155,89,214,.16),transparent)}
+.v-lo{border-color:#524322;background:linear-gradient(135deg,rgba(245,184,74,.1),transparent)}
+.v-bad{border-color:#5a2a2a;background:linear-gradient(135deg,rgba(255,107,107,.12),transparent)}
+.ring{grid-row:1/3;grid-column:2;width:58px;height:58px;border-radius:50%;display:grid;place-items:center;font:700 19px var(--mono);border:3px solid}
+.v-hi .ring,.ring.s-hi{border-color:var(--g)}.v-mid .ring,.ring.s-mid{border-color:var(--p)}.v-lo .ring,.ring.s-lo{border-color:var(--a)}.v-bad .ring,.ring.s-bad{border-color:var(--r)}
+.sect{padding:4px 16px 14px}
+.sect h5{margin:14px 0 10px;font:500 10px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--mut)}
+.bar{display:grid;grid-template-columns:104px 1fr 28px;gap:10px;align-items:center;font:11px var(--mono);margin:9px 0;color:var(--mut)}
+.bar i{display:block;height:5px;background:var(--line2);border-radius:3px;overflow:hidden}.bar i b{display:block;height:100%;background:var(--p);border-radius:3px}
+.bar em{font-style:normal;text-align:right;color:var(--cream)}
+.bundle{border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.bundle .b-top{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:var(--panel2);font-weight:700;font-size:14px}
+.b-row{display:flex;justify-content:space-between;padding:9px 14px;border-top:1px solid var(--line);font:11px var(--mono);color:var(--mut)}
+.b-row b{font-weight:500;color:var(--cream)}
+.mapwrap{border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#0f0d12}
+.bmap{width:100%;height:auto;display:block;background:radial-gradient(circle at 50% 45%,rgba(155,89,214,.08),transparent 60%)}
+.bmap .edges line{stroke:#ff6b6b;stroke-width:1.4;stroke-opacity:.5}
+.bmap circle{transition:fill-opacity .15s}.bmap g:hover circle{fill-opacity:1}
+.map-leg{display:flex;gap:14px;padding:10px 14px;border-top:1px solid var(--line);font:10px var(--mono);color:var(--mut);flex-wrap:wrap}
+.map-leg i{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:5px;vertical-align:-1px}
+.map-cap{padding:0 14px 12px;font:11px var(--mono)}
+.reasons{list-style:none;margin:0;padding:0}
+.reasons li{display:flex;gap:10px;padding:7px 0;font-size:12px;line-height:1.5;color:#b5adbd}
+.reasons li:before{content:"+";font:700 12px var(--mono);color:var(--g);flex:0 0 12px}
+.reasons li.neg:before{content:"–";color:var(--r)}
+.actions{display:flex;flex-wrap:wrap;gap:8px;padding:0 16px 14px}
+.actions a,.actions button{font:600 12px var(--sans);padding:10px 14px;border-radius:7px;border:1px solid var(--line2);color:var(--cream);text-decoration:none}
+.actions a:hover,.actions button:hover{border-color:var(--p)}
+.actions .main-a{background:var(--p);border-color:var(--p);color:#fff}
+.disc{padding:0 16px 18px;font:10px/1.6 var(--mono);color:var(--dim)}
+
+/* ---------- scanner / watch / daily ---------- */
+.scan-top{padding:26px 28px;margin-bottom:12px}
+.scan-top h2{font-size:clamp(24px,3vw,36px);letter-spacing:-.04em;margin:0 0 10px;line-height:1.08}
+.scan-in{display:flex;gap:10px;margin:20px 0 0;max-width:720px}
+.scan-in input{flex:1;background:var(--bg);border:1px solid var(--line2);border-radius:8px;padding:0 14px;height:50px;font:13px var(--mono);outline:0;min-width:0}
+.scan-in input:focus{border-color:var(--p)}
+.scanmsg{margin-top:12px;font:12px var(--mono);color:var(--mut);min-height:16px}
+.scanmsg.err{color:var(--r)}
+.scanner{display:grid;grid-template-columns:minmax(0,1fr) 420px;gap:12px;align-items:start}
+.scan-map{min-height:560px;display:flex;flex-direction:column;overflow:hidden}
+.scan-map-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 14px;border-bottom:1px solid var(--line);font-weight:700;flex-wrap:wrap}
+.map-actions{display:flex;align-items:center;gap:6px}
+.map-tab{font:600 11px var(--mono);padding:6px 11px;border-radius:6px;color:var(--mut);border:1px solid transparent}
+.map-tab:hover{color:var(--cream)}.map-tab.sel{background:var(--pg);color:var(--p2);border-color:#3b2a4f}
+.map-open{font:600 11px var(--mono);padding:6px 11px;border-radius:6px;color:var(--cream);text-decoration:none;border:1px solid var(--line2)}
+.map-open:hover{border-color:var(--p)}
+.map-body{position:relative;flex:1;min-height:520px}
+.map-body iframe{width:100%;height:100%;border:0;display:block;min-height:520px}
+.bm-load{position:absolute;inset:0;display:grid;place-items:center;text-align:center;font:12px var(--mono);color:var(--mut);pointer-events:none;padding:0 30px}
+.bm-blocked{display:flex;flex-direction:column;align-items:flex-start;gap:12px;padding:30px;max-width:460px}
+.bm-blocked b{font-size:15px}.bm-blocked p{margin:0;color:var(--mut);line-height:1.6;font-size:13px}
+.bm-blocked .primary{text-decoration:none;font-size:13px}
+#myMap .mapwrap{border:0;border-radius:0;height:100%;display:flex;flex-direction:column}
+#myMap .bmap{flex:1;min-height:0}
+.daily{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;align-content:start}
+.daily>:first-child,.daily>.how{grid-column:1/-1}
+.picks{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-top:14px}
+.pick{background:var(--panel2);border:1px solid var(--line);border-radius:9px;padding:14px;text-align:left}.pick:hover{border-color:var(--p)}
+.pick b{display:block;font-size:15px;letter-spacing:-.02em;margin-bottom:4px}.pick small{font:10px var(--mono);color:var(--mut);display:block;margin-bottom:10px}
+.pick .pc{font:700 20px var(--mono)}
+.hist-day{padding:12px 0;border-bottom:1px solid var(--line)}.hist-day:last-child{border:0}
+.hist-day h6{margin:0 0 8px;font:500 11px var(--mono);color:var(--mut)}
+.hist-pick{display:flex;justify-content:space-between;font:12px var(--mono);padding:4px 0}
+.ranks{display:flex;flex-direction:column;gap:6px}
+.rank{display:flex;justify-content:space-between;padding:10px 12px;border:1px solid var(--line);border-radius:8px;font:12px var(--mono);color:var(--mut)}
+.rank.on{border-color:var(--p);background:var(--pg);color:var(--cream)}
+.how p{max-width:680px;line-height:1.7;font-size:13px}
+
+/* ---------- modal ---------- */
+.modal{position:fixed;inset:0;z-index:50;background:rgba(5,5,5,.8);display:grid;place-items:center;backdrop-filter:blur(4px)}
+.modal-card{position:relative;width:min(440px,92%);background:var(--panel);border:1px solid var(--line2);border-radius:12px;padding:34px}
+.modal-card h2{font-size:38px;line-height:.95;letter-spacing:-.05em;margin:22px 0 14px}
+.modal-card .x{position:absolute;top:14px;right:16px;font-size:24px;color:var(--mut)}
+.wallets{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:22px 0}
+.wallet{background:var(--panel2);border:1px solid var(--line2);border-radius:8px;padding:16px 6px;font-size:18px;text-align:center}.wallet:hover{border-color:var(--p)}
+.wallet span{display:block;font-size:11px;margin-top:8px;color:var(--mut)}
+.mstatus{font:11px var(--mono);padding:12px;background:var(--bg);border-radius:7px;color:var(--mut)}
+
+/* ---------- responsive ---------- */
+@media(max-width:1280px){
+  .radar,.scanner{grid-template-columns:minmax(0,1fr)}
+  .detail:not(.static){position:fixed;inset:58px 0 0 0;z-index:40;border-radius:0;transform:translateY(102%);transition:transform .25s}
+  .detail.open{transform:none}
+  .d-close{display:block}
+  .scanner .detail.static{position:static}
+  .picks{grid-template-columns:repeat(2,1fr)}
+}
+@media(max-width:1000px){
+  .sidebar{top:58px;bottom:auto;width:100%;height:46px;flex-direction:row;padding:4px 8px;overflow-x:auto;border-right:0;border-bottom:1px solid var(--line)}
+  .nav{flex:0 0 auto;height:36px}.side-foot{display:none}
+  .main{left:0;top:104px}
+  .pulse{display:none}
+  .detail:not(.static){inset:104px 0 0 0}
+  .daily{grid-template-columns:1fr}
+  .briefing{grid-template-columns:1fr 1fr}.briefing .card:last-child{display:none}
+  .rows.flat .row{grid-template-columns:28px minmax(120px,1.6fr) 80px 52px 24px}
+  .rows.flat .row>:nth-child(3),.rows.flat .row>:nth-child(5){display:none}
+}
+/* progressive column hiding: drop least important first */
+@media(max-width:1500px){.c-m5{display:none!important}}
+@media(max-width:1360px){.c-h6{display:none!important}}
+@media(max-width:1220px){.c-txns{display:none!important}}
+@media(max-width:1120px){.c-price{display:none!important}}
+@media(max-width:1000px){
+  .sidebar{top:62px}.main{left:0;top:108px}
+  .daily{grid-template-columns:1fr}
+  .briefing{grid-template-columns:1fr 1fr}.briefing .card:last-child{display:none}
+  .c-vol,.c-h24{display:none!important}
+  .row{grid-template-columns:26px minmax(120px,1.6fr) 44px 72px 56px 70px 80px 44px;gap:6px}
+}
+@media(max-width:620px){
+  .search{width:auto;flex:1}.topbar .brand{display:none}.chip-top{display:none}
+  .briefing{grid-template-columns:1fr}.briefing .card:nth-child(2){display:none}
+  .scan-in{flex-direction:column}.scan-in input{height:46px}
+  .picks{grid-template-columns:1fr}
+  .ages span{display:none}
+  .c-age,.c-liq,.c-bund{display:none!important}
+  .row{grid-template-columns:22px minmax(0,1fr) 64px 56px 30px;gap:6px;padding:0 10px}
+  .chip{padding:4px 6px;font-size:9px}
+  .feed-head{height:auto;padding:6px 10px}
+}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+
+/* ===== ZIMR V4 INTELLIGENCE UI ===== */
+:root{--p:#8b5cf6;--p2:#c4a1ff;--cyan:#63d8ff;--gold:#f6c85f;--g:#52e39a;--r:#ff626f;--panel:#111016;--panel2:#17141d;--line:#24202d;--line2:#332b3f}
+.topbar{height:62px;padding:0 20px;box-shadow:0 10px 35px rgba(0,0,0,.18)}
+.sidebar{top:62px;width:198px;padding:16px 11px}
+.main{top:62px;left:198px;padding:14px}
+.brand{letter-spacing:-.075em}
+.search{height:38px;border-radius:10px;background:#121017}
+.nav{height:42px;border-radius:9px}
+.panel,.card{border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,.10)}
+.briefing{grid-template-columns:1.45fr 1.2fr .8fr}
+.cotd{background:radial-gradient(circle at 85% 50%,rgba(139,92,246,.2),transparent 45%),linear-gradient(135deg,#17121f,#111016)}
+.cotd-body b{font-size:24px}
+.feed{box-shadow:0 14px 45px rgba(0,0,0,.18)}
+.feed-head{height:50px}
+.tabs button{padding:8px 13px}
+.row{grid-template-columns:28px minmax(150px,1.5fr) 46px 72px 84px 52px 74px 60px 60px 60px 60px 70px 84px 46px;gap:7px}
+.thead .sortable{cursor:pointer;user-select:none}
+.thead .sortable:hover{color:var(--cream)}
+.thead .sortable.sorted{color:var(--p2)}
+.thead .sortable.sorted:after{content:" ▾";font-size:8px}
+.thead .sortable.sorted[data-dir=asc]:after{content:" ▴"}
+.rows .row{height:64px}
+.thead{height:36px}
+.tok-t b{font-size:13px}
+.coin-ico{width:34px;height:34px;flex-basis:34px}
+.tag{border-radius:4px}
+.detail{background:#0f0e13}
+.d-head{padding:18px 18px 14px;background:linear-gradient(180deg,#17141d,#111016);position:sticky;top:0;z-index:3;border-bottom:1px solid var(--line)}
+.chartbox{height:205px}
+.stats{grid-template-columns:repeat(3,1fr);background:#100e14}
+.stats div{padding:13px 15px}
+.verdict{margin:14px 16px;padding:15px}
+.intel-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:0 16px 10px}
+.intel-card{border:1px solid var(--line);background:linear-gradient(135deg,#15121a,#100f14);border-radius:10px;padding:12px}
+.intel-card h6{margin:0 0 9px;font:700 9px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--mut)}
+.intel-val{font:700 18px var(--mono);color:var(--cream)}
+.intel-sub{margin-top:4px;font:10px var(--mono);color:var(--dim)}
+.flowbar{height:7px;border-radius:8px;background:var(--r);overflow:hidden;margin-top:9px}.flowbar i{display:block;height:100%;background:var(--g)}
+.metric-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+.metric{padding:10px 11px;border:1px solid var(--line);border-radius:8px;background:#121017}.metric span{display:block;font:9px var(--mono);text-transform:uppercase;color:var(--dim);margin-bottom:5px}.metric b{font:600 13px var(--mono)}
+.section-title{padding:5px 16px 7px;font:700 9px var(--mono);letter-spacing:.14em;color:var(--p2);text-transform:uppercase}
+.signal-row{display:flex;align-items:center;justify-content:space-between;padding:8px 16px;border-top:1px solid var(--line);font:11px var(--mono)}
+.signal-row b{font-weight:600}.signal-dot{width:7px;height:7px;border-radius:50%;display:inline-block;margin-right:7px;background:var(--g);box-shadow:0 0 8px rgba(82,227,154,.45)}
+.signal-dot.warn{background:var(--gold);box-shadow:0 0 8px rgba(246,200,95,.4)}.signal-dot.bad{background:var(--r);box-shadow:0 0 8px rgba(255,98,111,.4)}
+.detail .sect{padding-bottom:12px}
+@media(max-width:1280px){.sidebar{width:184px}.main{left:184px}.intel-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:1000px){.sidebar{top:62px}.main{left:0;top:108px}.row{grid-template-columns:28px minmax(130px,1.7fr) 70px 90px 48px}.intel-grid{grid-template-columns:1fr}}
+
+
+.project-card{border:1px solid var(--line2);background:rgba(255,255,255,.02);border-radius:10px;padding:12px}.project-line{display:flex;justify-content:space-between;gap:12px;font-size:12px}.project-line span{color:var(--mut)}.project-desc{margin:10px 0;color:var(--mut);font-size:12px;line-height:1.55}.project-links{display:flex;flex-wrap:wrap;gap:7px}.project-links a{font:600 11px var(--sans);padding:8px 10px;border:1px solid var(--line2);border-radius:7px;color:var(--cream);text-decoration:none}.project-links a:hover{border-color:var(--p);color:#fff}.source-badge{display:inline-flex!important;padding:3px 6px!important;border-radius:999px!important;border:1px solid var(--line2)!important;margin-left:4px;font-size:9px!important;color:var(--mut)!important}
+
+.devintel{border:1px solid var(--line2);background:linear-gradient(135deg,rgba(155,89,214,.08),rgba(255,255,255,.015));border-radius:12px;padding:14px}.devintel.loading{color:var(--cream)}.devintel.loading small{display:block;color:var(--mut);margin-top:7px}.pulse-dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--p2);box-shadow:0 0 12px var(--p2);margin-right:7px;animation:pulse 1.1s infinite}.devtop{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}.devtop>div{display:flex;flex-direction:column;gap:4px}.devlabel{font:600 9px var(--mono);letter-spacing:.14em;color:var(--p2)}.devtop b{font:600 13px var(--mono)}.devtop em{font-style:normal;color:var(--g);font-size:10px}.devtop a{font-size:11px;color:var(--p2);text-decoration:none}.devstats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:12px}.devstats>div{background:rgba(0,0,0,.18);border:1px solid var(--line);border-radius:8px;padding:9px}.devstats span{display:block;color:var(--mut);font-size:9px;text-transform:uppercase;letter-spacing:.06em}.devstats b{display:block;margin-top:4px;font-size:13px}.devnote{margin-top:10px;color:var(--mut);font-size:11px;line-height:1.5}.devintel.good{border-color:rgba(95,211,141,.3)}.devintel.warn{border-color:rgba(245,184,74,.35)}.devintel.bad{border-color:rgba(255,107,107,.35)}.dev-empty{color:var(--mut);font-size:12px}@keyframes pulse{50%{opacity:.35;transform:scale(.8)}}
+@media(max-width:700px){.devstats{grid-template-columns:repeat(2,minmax(0,1fr))}}
 </style>
 </head>
 <body>
+<canvas id="stars" aria-hidden="true"></canvas>
 
-<nav>
-  <div class="nav-in">
-    <div class="logo"><span class="dot">Z</span>ZIMR</div>
-    <div class="nav-links">
-      <a href="#products">Products</a>
-      <a href="#how">How it works</a>
-      <a class="btn btn-p" href="#products">Get access</a>
-    </div>
-  </div>
-</nav>
-
-<header>
-  <div class="wrap">
-    <span class="kick">TWO TOOLS · ONE STUDIO</span>
-    <h1>Sharper market intel and <span class="g">scroll-stopping screenshots</span></h1>
-    <p>Built for crypto creators. Spot where attention is shifting, then turn it into content that actually looks good.</p>
-    <div class="hero-cta">
-      <a class="btn btn-p" onclick="buy('shots')">Get ZIMR Screenshots</a>
-      <a class="btn btn-o" href="#products">See what's inside</a>
-    </div>
-    <div class="hero-note">Pay with crypto · ZIMR Screenshots available now · ZIMR Crypto coming soon</div>
-  </div>
-</header>
-
-<section class="section" id="products">
-  <div class="wrap">
-    <div class="sec-head">
-      <h2>Pick your tool</h2>
-      <p>ZIMR Screenshots is live now. ZIMR Crypto is on the way.</p>
-    </div>
-
-    <div class="products">
-      <!-- ZIMR CRYPTO -->
-      <div class="card dim">
-        <div class="glow"></div>
-        <span class="soon">COMING SOON</span>
-        <div class="p-icon">📈</div>
-        <h3>ZIMR Crypto</h3>
-        <div class="sub">THE INTELLIGENCE DASHBOARD</div>
-        <div class="desc">Your market command center. Track where attention is moving across crypto and stocks before the crowd, with the data and context in one place.</div>
-        <ul class="feat">
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Attention Radar — spot rising narratives early</li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Daily AI market briefs</li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Early signals & pre-breakout radar</li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>DeFi flows, events & Polymarket intel</li>
-        </ul>
-        <div class="price-row"><span class="price">$19.95</span><span class="price-sub">per month · subscription</span></div>
-        <a class="btn btn-o" style="cursor:default;opacity:.65" onclick="return false">Coming soon</a>
-      </div>
-
-      <!-- ZIMR SCREENSHOTS -->
-      <div class="card">
-        <div class="glow"></div>
-        <div class="p-icon">📸</div>
-        <h3>ZIMR Screenshots</h3>
-        <div class="sub">THE CONTENT STUDIO APP</div>
-        <div class="desc">Turn a plain screenshot into content that pops. Beautiful backgrounds, real shadows and clean annotations, in seconds. A desktop app for Windows.</div>
-        <ul class="feat">
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>50+ gradient & solid backgrounds</li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Full shadow, padding & rounding control</li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Arrows, boxes, text & image overlays</li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Capture, paste or open · export PNG</li>
-        </ul>
-        <div class="price-row"><span class="price">$19.95</span><span class="price-sub">one-time · lifetime updates</span></div>
-        <a class="btn btn-p" onclick="buy('shots')">Buy ZIMR Screenshots</a>
-      </div>
-    </div>
+<!-- ============ LOGIN GATE ============ -->
+<section id="gate" class="gate">
+  <div class="start">
+    <div class="start-brand"><span class="login-logo">Z</span><div><b>ZIMR</b><small>DIGITAL ASSET TERMINAL</small></div></div>
+    <h1>See what<br><span>moves next.</span></h1>
+    <p class="lede">Every Solana coin, live. Scanned for bundles and scored before you ape.</p>
+    <div class="start-stats"><span id="gsCoins">0</span> coins on radar &nbsp;·&nbsp; <span id="gsScanned">0</span> scanned &nbsp;·&nbsp; <span id="gsBundled">0</span> bundles flagged</div>
+    <button id="enterBtn" class="primary start-go">Start →</button>
+    <input id="loginName" type="hidden"><input id="loginCode" type="hidden">
+    <div id="loginMsg" class="login-msg"></div>
+    <p class="login-foot">Not financial advice. Scores are signals, not guarantees.</p>
   </div>
 </section>
 
-<section class="section" id="how">
-  <div class="wrap">
-    <div class="sec-head">
-      <h2>How it works</h2>
-      <p>Pay with crypto, get access by email. No account needed.</p>
-    </div>
-    <div class="steps">
-      <div class="step"><div class="n">01</div><h4>Pick a tool</h4><p>Choose ZIMR Crypto, ZIMR Screenshots, or the bundle and hit buy.</p></div>
-      <div class="step"><div class="n">02</div><h4>Pay with crypto</h4><p>Pay in BTC, ETH, SOL or USDT through a secure checkout. Confirmation is automatic.</p></div>
-      <div class="step"><div class="n">03</div><h4>Get access</h4><p>Your download link or access code lands in your inbox the moment payment confirms.</p></div>
-    </div>
-  </div>
-</section>
+<!-- Matrix transition overlay -->
+<div id="matrix" class="matrix hidden"><canvas id="matrixCv"></canvas><div id="matrixText" class="matrix-text"></div></div>
 
-<footer>
-  <div class="wrap">© 2026 ZIMR · zimrcapital.com · <a href="#" style="color:var(--acc)">Contact</a><br>
-  <span style="font-size:11.5px">Crypto markets are volatile. ZIMR Crypto is a research and information tool, not financial advice.</span></div>
-</footer>
-
-<!-- PURCHASE MODAL -->
-<div class="ov" id="ov" onclick="if(event.target===this)closeBuy()">
-  <div class="modal">
-    <button class="x" onclick="closeBuy()">✕</button>
-    <h3 id="m-title">Checkout</h3>
-    <div class="mp" id="m-price">$19.95</div>
-    <a class="btn btn-p" id="m-go" onclick="goCheckout()">Continue to crypto checkout</a>
-    <div class="mdiv">or pay manually</div>
-    <div class="manual">
-      Send the exact amount to one of the wallets below, then email your transaction hash to <b id="m-email">info@zimrcapital.com</b> with the product name. You'll get your access within a few hours.
-      <span class="addr" id="w-btc">BTC: your-btc-address-here</span>
-      <span class="addr" id="w-eth">ETH/USDT (ERC20): your-eth-address-here</span>
-      <span class="addr" id="w-sol">SOL: your-sol-address-here</span>
+<!-- ============ APP ============ -->
+<div id="app" class="app hidden">
+  <header class="topbar">
+    <div class="brand">ZIMR</div>
+    <label class="search"><span aria-hidden="true">⌕</span><input id="search" type="search" placeholder="Search a coin, or paste a contract address to scan" autocomplete="off" spellcheck="false"></label>
+    <div id="pulse" class="pulse"></div>
+    <div class="top-right">
+      <span id="streakChip" class="chip-top" title="Daily streak"></span>
+      <span id="modeChip" class="chip-top"></span>
+      <button id="connectBtn" class="ghost">Connect</button><button id="fomoBtn" class="ghost" title="Optional FOMO API key">FOMO</button><button id="bitqueryBtn" class="ghost" title="Optional Bitquery API key">ON-CHAIN</button>
     </div>
+  </header>
+
+  <nav class="sidebar" aria-label="Main">
+    <button class="nav active" data-view="overview"><i>◈</i><span>Overview</span></button>
+    <button class="nav" data-view="radar"><i>▦</i><span>Radar</span></button>
+    <button class="nav" data-view="scanner"><i>◎</i><span>Bundle scanner</span></button>
+    <button class="nav" data-view="watch"><i>★</i><span>Watchlist</span><em id="watchCount">0</em></button>
+    <button class="nav" data-view="daily"><i>◆</i><span>Daily picks</span></button>
+    <div class="side-foot"><span id="refreshInfo">Refreshing...</span></div>
+  </nav>
+
+  <main class="main">
+    <!-- OVERVIEW -->
+    <section id="view-overview" class="view">
+      <div class="ov">
+        <header class="ov-hero">
+          <p class="kicker">The Solana discovery platform</p>
+          <h1>Discover what's next<span>.</span></h1>
+          <p class="ov-sub">Explore new coins. Understand the risks. Find your own edge.</p>
+          <p class="ov-snap" id="ovSnap">Live snapshot · refreshes automatically</p>
+        </header>
+
+        <div class="ov-stats">
+          <div class="ov-stat"><div class="ov-stat-top"><span>Tracked coins</span><i>◎</i></div><b id="ovTracked">0</b><small>Current tracking window</small></div>
+          <div class="ov-stat"><div class="ov-stat-top"><span>New in 24h</span><i>⚡</i></div><b id="ovNew">0</b><small>Fresh launches</small></div>
+          <div class="ov-stat"><div class="ov-stat-top"><span>Bundles flagged</span><i>⚠</i></div><b id="ovBundled">0</b><small>Caught by the scanner</small></div>
+          <div class="ov-stat"><div class="ov-stat-top"><span>Scanned</span><i>✓</i></div><b id="ovScanned">0</b><small>This session</small></div>
+        </div>
+
+        <div class="ov-feature">
+          <button class="ov-cta-card" id="ovExplore">
+            <p class="kicker">Beyond the hype</p>
+            <h2>Big possibilities.<br>Better perspective.</h2>
+            <p>Go beyond the ticker. Bundle scans and buy scores at the center of your next discovery.</p>
+            <span class="ov-cta-btn">Explore the radar →</span>
+            <div class="ov-radar-deco"><i></i><i></i><i></i><span>◉</span></div>
+          </button>
+
+          <div class="ov-panel">
+            <div class="ov-panel-head"><b>🔥 Market momentum</b><button class="ov-link" data-goto="hot">Explore →</button></div>
+            <p class="ov-panel-sub">Top movers · 1h window</p>
+            <div id="ovMomentum" class="ov-list"></div>
+          </div>
+
+          <div class="ov-panel">
+            <div class="ov-panel-head"><b>✦ Latest launches</b><button class="ov-link" data-goto="fresh">Explore →</button></div>
+            <p class="ov-panel-sub">New in the last few hours</p>
+            <div id="ovLaunches" class="ov-list"></div>
+          </div>
+        </div>
+
+        <div class="ov-rankings">
+          <div class="sec-head"><h2>Solana coin rankings</h2><button class="ov-link" data-goto="all">Open full radar →</button></div>
+          <p class="ov-panel-sub">Default order: live heat. Click a coin for its full report.</p>
+          <div class="thead row ov-thead"><span></span><span>Token</span><span class="c-age">Age</span><span>MCap</span><span class="c-vol">Volume</span><span>1h</span><span class="c-liq">Liq</span><span class="c-bund">Bundled?</span><span>Score</span></div>
+          <div id="ovRows" class="rows"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- RADAR -->
+    <section id="view-radar" class="view hidden">
+      <div class="radar">
+        <div class="left">
+          <div class="briefing">
+            <button class="card cotd" id="cotd"><span class="lbl">Coin of the day</span><div class="cotd-body"><b id="cotdName">Scanning...</b><span id="cotdMeta"></span></div><div id="cotdScore" class="ring">--</div></button>
+            <div class="card"><span class="lbl">Hot narratives</span><div id="narr" class="narr"></div></div>
+            <div class="card"><span class="lbl">Your streak</span><div class="streak"><b id="stNum">1</b><span id="stRank">Scout</span></div><small id="stNext"></small></div>
+          </div>
+          <div class="panel feed">
+            <div id="tape" class="tape" aria-label="Live trades"></div>
+            <div id="movers" class="movers" aria-label="Live movers"></div>
+            <div class="feed-head">
+              <div class="tabs" id="tabs">
+                <button class="sel" data-tab="all">All coins</button>
+                <button data-tab="trending">⭐ Trending</button>
+                <button data-tab="hot">🔥 Hot</button>
+                <button data-tab="pump">🟣 Pump.fun</button>
+                <button data-tab="fresh">🚀 New launches</button>
+                <button data-tab="volume">Volume</button>
+                <button data-tab="momentum">📈 Gainers</button>
+                <button data-tab="boost">Boosted</button>
+              </div>
+              <div class="ages" id="ages"><span>Max age</span>
+                <button data-age="1">1h</button><button data-age="6">6h</button><button data-age="24">24h</button><button data-age="72">3d</button><button class="sel" data-age="0">Any</button>
+              </div>
+            </div>
+            <div class="source-strip" id="sourceStrip"><span class="source-title">DISCOVERY</span><button class="source-pill" data-source-tab="hot"><i class="src-dot"></i>DexScreener</button><button class="source-pill" data-source-tab="pump"><i class="src-dot"></i>Pump.fun</button><button class="source-pill" data-source-tab="fomo"><i class="src-dot"></i>FOMO</button><span id="candidateCount" class="source-count">0 candidates</span></div>
+            <div class="thead row"><span></span><span>Token</span><span class="c-age sortable" data-sort="age">Age</span><span class="sortable" data-sort="mcap">MCap</span><span class="c-price sortable" data-sort="price">Price</span><span class="c-txns sortable" data-sort="txns">Txns</span><span class="c-vol sortable" data-sort="vol">Volume</span><span class="c-m5 sortable" data-sort="m5">5m</span><span class="sortable" data-sort="h1">1h</span><span class="c-h6 sortable" data-sort="h6">6h</span><span class="c-h24 sortable" data-sort="h24">24h</span><span class="c-liq sortable" data-sort="liq">Liq</span><span class="c-bund">Bundled?</span><span class="sortable" data-sort="score">Score</span></div>
+            <div id="rows" class="rows" role="list"></div>
+            <div id="empty" class="empty hidden">No coins match these filters.</div>
+          </div>
+        </div>
+        <aside id="detailRadar" class="panel detail"></aside>
+        <div id="detailBackdrop"></div>
+      </div>
+    </section>
+
+    <!-- SCANNER -->
+    <section id="view-scanner" class="view hidden">
+      <div class="scan-top panel">
+        <p class="kicker">Bundle scanner</p>
+        <h2>Paste a contract address, get the bubble map.</h2>
+        <p class="muted">See exactly how the supply is spread, which wallets are linked, and whether it is safe to buy. Powered by Bubblemaps where available.</p>
+        <div class="scan-in"><input id="scanInput" placeholder="Paste Solana contract address (CA)" spellcheck="false" autocomplete="off"><button id="scanBtn" class="primary">Scan coin</button></div>
+        <div id="scanMsg" class="scanmsg"></div>
+      </div>
+      <div class="scanner">
+        <div id="scanMap" class="panel scan-map"><div class="d-empty">Paste a contract address above to load its bubble map here.</div></div>
+        <aside id="detailScan" class="panel detail static"><div class="d-empty">The full report and buy score show up here after you scan.</div></aside>
+      </div>
+    </section>
+
+    <!-- WATCHLIST -->
+    <section id="view-watch" class="view hidden">
+      <div class="panel pad">
+        <div class="sec-head"><h2>Watchlist</h2><span class="muted small">Star any coin on the radar. Change is measured from the moment you added it.</span></div>
+        <div id="watchRows" class="rows flat"></div>
+      </div>
+    </section>
+
+    <!-- DAILY -->
+    <section id="view-daily" class="view hidden">
+      <div class="daily">
+        <div class="panel pad">
+          <div class="sec-head"><h2>Today's picks</h2><span id="dailyCount" class="muted small"></span></div>
+          <p class="muted">The five best-scoring coins that passed the bundle scan, locked in once per day with their entry price. Come back to see how they did.</p>
+          <div id="todayPicks" class="picks"></div>
+        </div>
+        <div class="panel pad">
+          <div class="sec-head"><h2>Track record</h2><span class="muted small">Stored on this device</span></div>
+          <div id="history"></div>
+        </div>
+        <div class="panel pad">
+          <div class="sec-head"><h2>Ranks</h2></div>
+          <div id="ranks" class="ranks"></div>
+        </div>
+        <div class="panel pad how">
+          <div class="sec-head"><h2>How the score works</h2></div>
+          <p class="muted">Seven signals, each 0 to 100: momentum, buy pressure, volume against liquidity, liquidity depth, age, socials and safety. A bundled coin is capped at 45 no matter how strong it looks.</p>
+          <p class="muted small">Not financial advice. A high score means the setup looks healthy, not that the price will go up.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<!-- WALLET MODAL (mock) -->
+<div id="modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="mTitle">
+  <div class="modal-card">
+    <button class="x" id="mClose" aria-label="Close">×</button>
+    <div class="brand">ZIMR</div>
+    <h2 id="mTitle">Prove your conviction.</h2>
+    <p class="muted">Connect a wallet to unlock your access level. Non-custodial. This is a demo flow until the token gate is wired up.</p>
+    <div class="wallets">
+      <button class="wallet" data-wallet="Phantom">◈<span>Phantom</span></button>
+      <button class="wallet" data-wallet="MetaMask">◆<span>MetaMask</span></button>
+      <button class="wallet" data-wallet="WalletConnect">◌<span>WalletConnect</span></button>
+    </div>
+    <div id="mStatus" class="mstatus">No wallet connected</div>
   </div>
 </div>
 
 <script>
-// ─────────────────────────────────────────────
-//  FILL THESE IN once your products are live.
-//  Create each product in your crypto checkout
-//  (e.g. NOWPayments / Coinbase Commerce) and
-//  paste the hosted payment-link URLs here.
-const CHECKOUT = {
-  shots: ''    // payment link for ZIMR Screenshots ($19.95 one-time)
-}
-const SUPPORT_EMAIL = 'info@zimrcapital.com'
-const WALLETS = {
-  btc: 'bc1q8qcdtcydl8nea7ekyrkjzw3y2ssf02kvzv6zu2',
-  eth: '0xDDe8e24BaF8c09ebc84aFFF65C5c1Aa1dFd24d66',
-  sol: '6jK7Q3pFTWz1unBsi9ifEctvRnCBF3nWBArvsSmirYMN'
-}
-// ─────────────────────────────────────────────
+'use strict';
+/* ZIMR Terminal v4 • Intelligence UI
+   Live data: DexScreener (pairs, new profiles, boosts), FOMO (optional API key), RugCheck (holders, insider networks, authorities), CoinGecko (BTC/SOL/ETH). Pump.fun is backend-ready but not falsely marked live without a direct feed.
+   If the live APIs cannot be reached the terminal falls back to a clearly labelled demo dataset. */
 
-const PRODUCTS = {
-  shots: { name: 'ZIMR Screenshots', price: '$19.95' }
-}
-let current = 'shots'
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+const clamp = (n, a, b) => Math.max(a, Math.min(b, n));
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const store = {
+  get(k, d) { try { const v = JSON.parse(localStorage.getItem(k)); return v ?? d; } catch { return d; } },
+  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} }
+};
 
-function buy(key) {
-  current = key
-  const p = PRODUCTS[key]
-  document.getElementById('m-title').textContent = p.name
-  document.getElementById('m-price').textContent = p.price
-  document.getElementById('m-email').textContent = SUPPORT_EMAIL
-  document.getElementById('w-btc').textContent = 'BTC: ' + WALLETS.btc
-  document.getElementById('w-eth').textContent = 'ETH/USDT (ERC20): ' + WALLETS.eth
-  document.getElementById('w-sol').textContent = 'SOL: ' + WALLETS.sol
-  document.getElementById('ov').classList.add('on')
+const API = {
+  profiles: 'https://api.dexscreener.com/token-profiles/latest/v1',
+  boostTop: 'https://api.dexscreener.com/token-boosts/top/v1',
+  boostNew: 'https://api.dexscreener.com/token-boosts/latest/v1',
+  profileUpdates: 'https://api.dexscreener.com/token-profiles/recent-updates/v1',
+  tokens: a => `https://api.dexscreener.com/tokens/v1/solana/${a.join(',')}`,
+  // GeckoTerminal public API (no key, ~30 calls/min). Our main breadth + trending source.
+  gtTrending: p => `https://api.geckoterminal.com/api/v2/networks/solana/trending_pools?page=${p}&duration=1h`,
+  gtVolume: p => `https://api.geckoterminal.com/api/v2/networks/solana/pools?page=${p}&sort=h24_volume_usd_desc`,
+  gtNew: p => `https://api.geckoterminal.com/api/v2/networks/solana/new_pools?page=${p}`,
+  fomoTrending: 'https://api.fomoapi.io/v2/leaderboard/tokens/trending?limit=100',
+  bitquery: 'https://streaming.bitquery.io/graphql',
+  rug: m => `https://api.rugcheck.xyz/v1/tokens/${m}/report`,
+  dev: m => `https://sol-radar.com/api.php?action=trust_score&mint=${encodeURIComponent(m)}`,
+  prices: 'https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,solana,ethereum&vs_currencies=usd&include_24hr_change=true'
+};
+async function jget(url, ms = 9000, headers = {}) {
+  const c = new AbortController(), t = setTimeout(() => c.abort(), ms);
+  try { const r = await fetch(url, { signal: c.signal, headers }); if (!r.ok) throw new Error('HTTP ' + r.status); return await r.json(); }
+  finally { clearTimeout(t); }
 }
-function closeBuy() { document.getElementById('ov').classList.remove('on') }
-function goCheckout() {
-  const url = CHECKOUT[current]
-  if (url) { window.open(url, '_blank') }
-  else { alert('Checkout link not set yet. Add your payment link in the page settings, or use the manual crypto option below.') }
+async function fomoGet(url, ms = 9000) {
+  if (!S.fomoKey) throw new Error('FOMO API key not configured');
+  return jget(url, ms, { Authorization: 'Bearer ' + S.fomoKey, Accept: 'application/json' });
 }
-document.addEventListener('keydown', e => { if (e.key === 'Escape') closeBuy() })
+async function bitqueryPost(query, variables = {}, ms = 12000) {
+  if (!S.bitqueryKey) throw new Error('Bitquery API key not configured');
+  const c = new AbortController(), t = setTimeout(() => c.abort(), ms);
+  try {
+    const r = await fetch(API.bitquery, {
+      method: 'POST', signal: c.signal,
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + S.bitqueryKey },
+      body: JSON.stringify({ query, variables })
+    });
+    if (!r.ok) throw new Error('Bitquery HTTP ' + r.status);
+    const d = await r.json();
+    if (d.errors?.length) throw new Error(d.errors[0].message || 'Bitquery error');
+    return d.data || {};
+  } finally { clearTimeout(t); }
+}
+const PUMP_PROGRAM = '6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P';
+const FOMO_SIGNER = 'AgmLJBMDCqWynYnQiPCuj9ewsNNsBJXyzoUhD9LJzN51';
+async function loadBitqueryDiscovery() {
+  if (!S.bitqueryKey) return [];
+  const since = new Date(Date.now() - 12 * 60e3).toISOString();
+  const pumpQ = `query { Solana { DEXTrades(limit:{count:500}, orderBy:{descending:Block_Time}, where:{Block:{Time:{since:"${since}"}}, Trade:{Dex:{ProtocolName:{in:["pump","pump_amm"]}}}, Transaction:{Result:{Success:true}}}) { Block { Time } Transaction { Signature Signer } Trade { Dex { ProtocolName ProtocolFamily } Buy { AmountInUSD Currency { MintAddress Symbol Name } } Sell { AmountInUSD Currency { MintAddress Symbol Name } } } } } }`;
+  const fomoQ = `query { Solana { DEXTrades(limit:{count:300}, orderBy:{descending:Block_Time}, where:{Block:{Time:{since:"${since}"}}, Transaction:{Signer:{is:"${FOMO_SIGNER}"}, Result:{Success:true}}, Trade:{Dex:{ProtocolName:{is:"dflow"}}}}) { Block { Time } Transaction { Signature } Trade { Buy { AmountInUSD Currency { MintAddress Symbol Name } } Sell { AmountInUSD Currency { MintAddress Symbol Name } } Dex { ProtocolName } } } } }`;
+  const createQ = `query { Solana { TokenSupplyUpdates(limit:{count:300}, orderBy:{descending:Block_Time}, where:{Instruction:{Program:{Address:{is:"${PUMP_PROGRAM}"}, Method:{in:["create","create_v2"]}}}, Block:{Time:{since:"${since}"}}}) { Block { Time } Transaction { Signer } TokenSupplyUpdate { Currency { MintAddress Symbol Name Uri } } } } }`;
+  const out = [];
+  const [pump, fomo, creates] = await Promise.allSettled([bitqueryPost(pumpQ), bitqueryPost(fomoQ), bitqueryPost(createQ)]);
+  const add = (mint, patch={}) => { if (!mint) return; out.push({ mint, ...patch }); };
+  if (pump.status === 'fulfilled') for (const r of pump.value?.Solana?.DEXTrades || []) {
+    for (const side of [r.Trade?.Buy, r.Trade?.Sell]) { const m=side?.Currency?.MintAddress; if(m) add(m,{sources:['bitquery','pump'], launchpad:/pump/i.test(r.Trade?.Dex?.ProtocolName||'')?'Pump.fun':null, bitqueryLast:r.Block?.Time}); }
+  }
+  if (fomo.status === 'fulfilled') for (const r of fomo.value?.Solana?.DEXTrades || []) {
+    for (const side of [r.Trade?.Buy, r.Trade?.Sell]) { const m=side?.Currency?.MintAddress; if(m) add(m,{sources:['bitquery','fomo'], fomoFlow:true, bitqueryLast:r.Block?.Time}); }
+  }
+  if (creates.status === 'fulfilled') for (const r of creates.value?.Solana?.TokenSupplyUpdates || []) {
+    const u=r.TokenSupplyUpdate?.Currency; if(u?.MintAddress) add(u.MintAddress,{sources:['bitquery','pump'],launchpad:'Pump.fun',creator:r.Transaction?.Signer,created:r.Block?.Time,symbol:u.Symbol,name:u.Name,uri:u.Uri});
+  }
+  return out;
+}
+
+/* ---------- formatting ---------- */
+const fmt = {
+  usd(n) { if (n == null || isNaN(n)) return '–'; const a = Math.abs(n); if (a >= 1e9) return '$' + (n / 1e9).toFixed(2) + 'B'; if (a >= 1e6) return '$' + (n / 1e6).toFixed(2) + 'M'; if (a >= 1e3) return '$' + (n / 1e3).toFixed(1) + 'K'; return '$' + n.toFixed(0); },
+  price(p) { p = +p; if (!p) return '–'; if (p >= 1) return '$' + p.toFixed(2); if (p >= 0.01) return '$' + p.toFixed(4); return '$' + p.toFixed(10).replace(/0+$/, ''); },
+  pct(n, d = 1) { if (n == null || isNaN(n)) return '–'; return (n > 0 ? '+' : '') + Number(n).toLocaleString('en-US', { maximumFractionDigits: n > 999 ? 0 : d }) + '%'; },
+  age(ms) { if (!ms) return '–'; const m = Math.max(0, (Date.now() - ms) / 60000); if (m < 60) return Math.round(m) + 'm'; const h = m / 60; if (h < 48) return Math.round(h) + 'h'; return Math.round(h / 24) + 'd'; },
+  short(a) { return a ? a.slice(0, 4) + '...' + a.slice(-4) : ''; }
+};
+const cls = n => n > 0 ? 'g' : n < 0 ? 'r' : '';
+
+/* ---------- state ---------- */
+const S = {
+  mode: 'live', coins: new Map(), scans: new Map(), seen: new Set(), fresh: new Set(),
+  tab: 'all', age: 0, q: '', narr: null, sel: null, view: 'overview', started: Date.now(), sort: 'vol', sortDir: 'desc',
+  newCount: 0, scanned: 0, snapDone: false, scanTarget: null, sourceStats: {}, devIntel: new Map(), devLoading: new Set(), fomoKey: store.get('zimr_fomo_key',''), bitqueryKey: store.get('zimr_bitquery_key','')
+};
+const dateKey = (d = new Date()) => d.toISOString().slice(0, 10);
+
+
+/* ---------- candidate ingestion ---------- */
+function ingest(list) {
+  const incoming = Array.isArray(list) ? list.filter(c => c && c.mint) : [];
+  const now = Date.now();
+  let added = 0;
+  for (const raw of incoming) {
+    const prev = S.coins.get(raw.mint);
+    const c = { ...(prev || {}), ...raw };
+    c.sources = [...new Set([...(prev?.sources || []), ...(raw.sources || [])])];
+    c.created = Number.isFinite(+c.created) && +c.created > 0 ? +c.created : now;
+    c.mc = +c.mc || +c.fdv || 0;
+    c.liq = +c.liq || 0;
+    c.vol1 = +c.vol1 || 0;
+    c.vol24 = +c.vol24 || 0;
+    c.buys1 = +c.buys1 || 0;
+    c.sells1 = +c.sells1 || 0;
+    c.ch1 = c.ch1 == null ? 0 : +c.ch1;
+    c.ch5 = c.ch5 == null ? 0 : +c.ch5;
+    if (c.socials == null) c.socials = (c.websiteUrl ? 1 : 0) + (c.xUrl ? 1 : 0) + (c.telegramUrl ? 1 : 0) + (c.discordUrl ? 1 : 0);
+    if (!prev) {
+      added++;
+      S.newCount++;
+      if (now - c.created <= 6 * 3600e3) S.fresh.add(c.mint);
+    } else if (now - c.created <= 6 * 3600e3) {
+      S.fresh.add(c.mint);
+    }
+    S.coins.set(c.mint, c);
+  }
+
+  // Scan a useful rolling batch. Discovery stays broad; RugCheck only gets the
+  // freshest / most tradeable candidates so a large feed does not hammer the API.
+  const scanBatch = [...S.coins.values()]
+    .filter(c => c.liq >= 1000)
+    .sort((a, b) => {
+      // prioritise trending, then recent + active
+      const pri = c => (c.gtTrending ? 1000 : 0) + opportunity(c) + (c.vol1 / Math.max(c.liq, 1)) * 4;
+      return pri(b) - pri(a);
+    })
+    .slice(0, 180);
+  for (const c of scanBatch) queueScan(c, false);
+
+  const visibleCount = visibleCandidatesCount();
+  const cc = $('#candidateCount');
+  if (cc) cc.textContent = `${visibleCount} candidates`;
+  render();
+  return { added, total: S.coins.size };
+}
+function visibleCandidatesCount() {
+  const now = Date.now();
+  return [...S.coins.values()].filter(c => {
+    const ageH = (now - c.created) / 3600e3;
+    return c.liq >= 750 && c.mc >= 2000;
+  }).length;
+}
+
+/* ---------- starfield ---------- */
+(function stars() {
+  const cv = $('#stars'), ctx = cv.getContext('2d');
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let W, H, layers = [], shoot = null, mx = 0, my = 0, raf, nextShoot = 2500;
+  function size() {
+    const dpr = Math.min(devicePixelRatio || 1, 2); W = innerWidth; H = innerHeight;
+    cv.width = W * dpr; cv.height = H * dpr; ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    layers = [[220, .7, .5, 6], [110, 1.1, .75, 14], [40, 1.7, 1, 28]].map(([n, r, a, par]) =>
+      ({ par, r, a, s: Array.from({ length: n }, () => ({ x: Math.random() * W, y: Math.random() * H, p: Math.random() * 6.28, sp: .4 + Math.random() * 1.4, hue: Math.random() })) }));
+  }
+  function frame(t) {
+    ctx.clearRect(0, 0, W, H);
+    for (const L of layers) for (const s of L.s) {
+      const tw = reduce ? 1 : .55 + .45 * Math.sin(t / 1000 * s.sp + s.p);
+      ctx.globalAlpha = L.a * tw;
+      ctx.fillStyle = s.hue > .82 ? '#7d44c4' : s.hue > .7 ? '#4f8fd6' : '#5fa36b';
+      const x = (s.x + mx * L.par + W) % W, y = (s.y + my * L.par + H) % H;
+      ctx.beginPath(); ctx.arc(x, y, L.r, 0, 6.28); ctx.fill();
+    }
+    if (!reduce) {
+      if (!shoot && t > nextShoot) { shoot = { x: Math.random() * W * .7, y: Math.random() * H * .35, vx: 9 + Math.random() * 4, vy: 4 + Math.random() * 2, l: 0 }; nextShoot = t + 4000 + Math.random() * 5000; }
+      if (shoot) {
+        const g = ctx.createLinearGradient(shoot.x, shoot.y, shoot.x - shoot.vx * 9, shoot.y - shoot.vy * 9);
+        g.addColorStop(0, 'rgba(210,170,255,.9)'); g.addColorStop(1, 'rgba(210,170,255,0)');
+        ctx.globalAlpha = 1; ctx.strokeStyle = g; ctx.lineWidth = 1.6; ctx.beginPath(); ctx.moveTo(shoot.x, shoot.y); ctx.lineTo(shoot.x - shoot.vx * 9, shoot.y - shoot.vy * 9); ctx.stroke();
+        shoot.x += shoot.vx; shoot.y += shoot.vy; if (++shoot.l > 60 || shoot.x > W + 50) shoot = null;
+      }
+    }
+    ctx.globalAlpha = 1; raf = requestAnimationFrame(frame);
+  }
+  addEventListener('resize', size);
+  addEventListener('pointermove', e => { mx = (e.clientX / W - .5) * -1; my = (e.clientY / H - .5) * -1; });
+  document.addEventListener('visibilitychange', () => { if (document.hidden) cancelAnimationFrame(raf); else if (!cv.classList.contains('off')) raf = requestAnimationFrame(frame); });
+  size(); raf = requestAnimationFrame(frame);
+  window.stopStars = () => { cv.classList.add('off'); cancelAnimationFrame(raf); };
+  window.startStars = () => { cv.classList.remove('off'); raf = requestAnimationFrame(frame); };
+})();
+
+/* ---------- streak and ranks ---------- */
+const RANKS = [[1, 'Scout'], [3, 'Tracker'], [7, 'Hunter'], [14, 'Whale eye'], [30, 'Oracle']];
+const rankFor = n => [...RANKS].reverse().find(r => n >= r[0])[1];
+function touchStreak() {
+  const st = store.get('zimr_streak', { last: null, count: 0, best: 0 });
+  const today = dateKey(), y = dateKey(new Date(Date.now() - 864e5));
+  if (st.last !== today) { st.count = st.last === y ? st.count + 1 : 1; st.last = today; st.best = Math.max(st.best, st.count); store.set('zimr_streak', st); }
+  return st;
+}
+const streak = touchStreak();
+
+/* ---------- mapping live data ---------- */
+function mapPair(p, meta = {}) {
+  const b = p.baseToken || {}, info = p.info || {};
+  const src = new Set(meta.sources || []);
+  if (meta.source) src.add(meta.source);
+  // Pump.fun launches: dexId pumpfun/pumpswap, or the mint address ends in "pump"
+  if (p.dexId && /pump|pumpfun|pumpswap/i.test(p.dexId)) src.add('pump');
+  if (b.address && /pump$/i.test(b.address)) src.add('pump');
+  if (p.labels && Array.isArray(p.labels) && p.labels.some(l => /pump/i.test(l))) src.add('pump');
+  const socials = Array.isArray(info.socials) ? info.socials : [];
+  const websites = Array.isArray(info.websites) ? info.websites : [];
+  const social = type => socials.find(x => String(x.type || '').toLowerCase() === type)?.url || null;
+  const site = websites[0]?.url || null;
+  return {
+    mint: b.address, symbol: b.symbol || '?', name: b.name || b.symbol || '?', pair: p.pairAddress, url: p.url, dex: p.dexId,
+    icon: info.imageUrl || meta.icon || null, price: +p.priceUsd || 0, mc: p.marketCap || p.fdv || 0, fdv: p.fdv || 0, liq: p.liquidity?.usd || 0,
+    vol5: p.volume?.m5 || 0, vol24: p.volume?.h24 || 0, vol1: p.volume?.h1 || 0, vol6: p.volume?.h6 || 0,
+    ch5: p.priceChange?.m5, ch1: p.priceChange?.h1, ch6: p.priceChange?.h6, ch24: p.priceChange?.h24,
+    buys5: p.txns?.m5?.buys || 0, sells5: p.txns?.m5?.sells || 0, buys1: p.txns?.h1?.buys || 0, sells1: p.txns?.h1?.sells || 0,
+    created: p.pairCreatedAt || (meta.created ? (typeof meta.created === 'string' ? Date.parse(meta.created) : +meta.created) : 0), socials: socials.length + websites.length,
+    boosted: !!meta.boost || !!(p.boosts && p.boosts.active), desc: info.description || meta.desc || '', sources: [...src], seed: null,
+    xUrl: social('twitter') || social('x') || meta.xUrl || null, telegramUrl: social('telegram') || meta.telegramUrl || null, discordUrl: social('discord') || meta.discordUrl || null, websiteUrl: site || meta.websiteUrl || null, pumpUrl: (src.has('pump') || meta.launchpad === 'Pump.fun') ? 'https://pump.fun/coin/' + b.address : null,
+    creator: meta.creator || null, launchpad: meta.launchpad || (src.has('pump') ? 'Pump.fun' : null), complete: meta.complete,
+    discoveryRank: meta.discoveryRank || null, fomoRank: meta.fomoRank || null
+  };
+}
+function bestPairs(pairs, meta) {
+  const best = new Map();
+  for (const p of pairs || []) {
+    if (p.chainId !== 'solana' || !p.baseToken?.address) continue;
+    const cur = best.get(p.baseToken.address);
+    if (!cur || (p.liquidity?.usd || 0) > (cur.liquidity?.usd || 0)) best.set(p.baseToken.address, p);
+  }
+  return [...best.values()].map(p => mapPair(p, meta.get(p.baseToken.address) || {}));
+}
+async function fetchTokens(mints, meta = new Map()) {
+  const chunks = []; for (let i = 0; i < mints.length; i += 30) chunks.push(mints.slice(i, i + 30));
+  const res = await Promise.allSettled(chunks.map(c => jget(API.tokens(c))));
+  const pairs = res.flatMap(r => r.status === 'fulfilled' && Array.isArray(r.value) ? r.value : []);
+  if (!pairs.length && res.every(r => r.status === 'rejected')) throw new Error('tokens failed');
+  return bestPairs(pairs, meta);
+}
+
+/* ---------- demo data (only used when live APIs are unreachable) ---------- */
+function rng(seed) {
+  let s = 0; for (const ch of String(seed)) s = (s * 31 + ch.charCodeAt(0)) >>> 0;
+  return () => { s = (s + 0x6D2B79F5) >>> 0; let t = s; t = Math.imul(t ^ t >>> 15, t | 1); t ^= t + Math.imul(t ^ t >>> 7, t | 61); return ((t ^ t >>> 14) >>> 0) / 4294967296; };
+}
+const B58 = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';
+function demoCoin(sym, name) {
+  const r = rng(sym), mint = Array.from({ length: 44 }, () => B58[Math.floor(r() * 58)]).join('');
+  const liq = Math.round(4000 + Math.pow(r(), 2.2) * 380000), ageMin = 4 + Math.pow(r(), 1.8) * 2900;
+  const roll = r();
+  let ch1, ch5, ch6, ch24, buys = Math.round(30 + r() * 900), sells;
+  if (roll < .18) {               // pumped then rugged: huge 24h, crashing now
+    ch24 = 300 + r() * 500; ch6 = 120 + r() * 200; ch1 = -(55 + r() * 40); ch5 = -(20 + r() * 35);
+    sells = Math.round(buys * (1.4 + r())); 
+  } else if (roll < .3) {         // slow bleed
+    ch24 = 20 + r() * 80; ch6 = -(15 + r() * 25); ch1 = -(10 + r() * 20); ch5 = -(2 + r() * 10);
+    sells = Math.round(buys * (1.1 + r() * .6));
+  } else {                        // healthy / mixed
+    ch1 = (r() - .25) * 220 * (r() > .85 ? 3.5 : 1); ch6 = ch1 * (1 + r()); ch24 = ch1 * (1.5 + r() * 3); ch5 = (r() - .35) * 25;
+    sells = Math.round(buys * (.45 + r() * .7));
+  }
+  return { mint, symbol: sym, name, pair: null, url: 'https://dexscreener.com/solana/' + mint, dex: 'raydium', icon: null,
+    price: Math.pow(10, -7 + r() * 5), mc: liq * (3 + r() * 9), liq, vol24: liq * (1 + r() * 14), vol1: liq * (.05 + r() * 3.2),
+    ch5, ch1, ch6, ch24, buys1: buys, sells1: sells, created: Date.now() - ageMin * 60000,
+    socials: Math.floor(r() * 4), boosted: r() > .8, desc: name, seed: sym };
+}
+const DEMO_NAMES = [['phubber', 'Phubber AI'], ['ORE', 'Ore'], ['SWORDCAT', 'Sword Cat'], ['CAESAR', 'Caesar Inu'], ['HOOKED', 'Hooked Frog'], ['PLAGUE', 'Plague Doctor'], ['SPACEHOOD', 'Spacehood'], ['HIGGS', 'Higgs Boson'], ['CRAWL', 'Crawl'], ['ANISOM', 'Anisom'], ['MEOWTRUMP', 'Meow Trump'], ['GROKBOT', 'Grok Agent Bot'], ['PEPA', 'Pepa Frog'], ['NEKOCHAN', 'Neko Chan Anime'], ['AGENT47', 'Agent 47 AI'], ['SOLDOGE', 'Sol Doge'], ['WIZ', 'Wizard Cat'], ['MOONPIG', 'Moon Pig'], ['ELONX', 'Elon Mars'], ['BONKER', 'Bonker Dog']];
+function demoScan(c) {
+  const r = rng('scan' + c.mint), roll = r(), status = roll < .5 ? 'clean' : roll < .74 ? 'sus' : 'bundled';
+  const insiderPct = status === 'bundled' ? 14 + r() * 28 : status === 'sus' ? 4 + r() * 7 : r() * 2.5;
+  const n = 14 + Math.floor(r() * 6), nodes = [];
+  for (let i = 0; i < n; i++) { const big = i < 3; nodes.push({ id: 'd' + i, pct: big ? 3 + r() * 9 : .4 + r() * 2.4, insider: false, creator: i === 0 && status === 'bundled' }); }
+  const links = [];
+  if (status !== 'clean') {
+    const groups = status === 'bundled' ? 2 : 1;
+    const pool = [...Array(n).keys()].sort(() => r() - .5);
+    let p = 0;
+    for (let g = 0; g < groups; g++) {
+      const size = status === 'bundled' ? 3 + Math.floor(r() * 4) : 2 + Math.floor(r() * 2), members = pool.slice(p, p + size); p += size;
+      members.forEach(i => nodes[i].insider = true);
+      for (let i = 0; i < members.length; i++) for (let j = i + 1; j < members.length; j++) links.push([members[i], members[j]]);
+    }
+  }
+  return { status, source: 'demo', insiderWallets: status === 'bundled' ? 6 + Math.floor(r() * 24) : status === 'sus' ? 2 + Math.floor(r() * 3) : 0, insiderPct,
+    top10: 16 + r() * 36 + (status === 'bundled' ? 14 : 0), creatorPct: r() * (status === 'bundled' ? 14 : 4), lpLocked: r() > .4 ? 60 + r() * 40 : r() * 12,
+    mintAuth: r() > .93, freezeAuth: r() > .95, holders: Math.round(120 + r() * 3200), rugged: false,
+    flags: status === 'bundled' ? ['Linked wallets bought in the same block', 'Top holders connected'] : status === 'sus' ? ['Top holders concentrated'] : [],
+    map: { nodes, links } };
+}
+function demoSvg(c) {
+  const r = rng(c.mint), pts = []; let y = 200;
+  for (let x = 0; x <= 600; x += 10) { y = clamp(y + (r() - .46) * 17, 20, 220); pts.push(`${x},${y.toFixed(1)}`); }
+  return `<svg viewBox="0 0 600 240" preserveAspectRatio="none"><defs><linearGradient id="f" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#9b59d6" stop-opacity=".35"/><stop offset="1" stop-color="#9b59d6" stop-opacity="0"/></linearGradient></defs><polyline points="0,240 ${pts.join(' ')} 600,240" fill="url(#f)"/><polyline points="${pts.join(' ')}" fill="none" stroke="#bb8ef2" stroke-width="2"/></svg>`;
+}
+
+/* ---------- bundle scan (RugCheck) ---------- */
+function normalizeRug(r) {
+  const markets = r.markets || [], pools = new Set(markets.flatMap(m => [m.pubkey, m.liquidityA, m.liquidityB, m.lp?.lpLockedAddr].filter(Boolean)));
+  const holders = (r.topHolders || []).filter(h => !pools.has(h.address) && !pools.has(h.owner));
+  const top10 = holders.slice(0, 10).reduce((s, h) => s + (+h.pct || 0), 0);
+  const insiderPct = holders.filter(h => h.insider).reduce((s, h) => s + (+h.pct || 0), 0);
+  const nets = Array.isArray(r.insiderNetworks) ? r.insiderNetworks : [];
+  const insiderWallets = Math.max(+r.graphInsidersDetected || 0, nets.reduce((s, n) => s + (+n.activeAccounts || +n.size || 0), 0));
+  const creatorPct = r.creator ? (holders.find(h => h.address === r.creator || h.owner === r.creator)?.pct || 0) : 0;
+  const lp = markets.map(m => m.lp?.lpLockedPct).filter(v => v != null);
+  const flags = (r.risks || []).filter(x => x.level === 'danger' || x.level === 'warn').map(x => x.name);
+  let status = 'clean';
+  if ((nets.length && insiderPct >= 8) || insiderPct >= 20 || insiderWallets >= 8) status = 'bundled';
+  else if (nets.length || insiderPct >= 5 || insiderWallets >= 2 || top10 >= 45) status = 'sus';
+  // bubblemap: top holders as nodes, insider networks as link groups
+  const top = holders.slice(0, 20);
+  const nodes = top.map((h, i) => ({ id: h.address || h.owner || ('h' + i), pct: +h.pct || 0, insider: !!h.insider, creator: r.creator && (h.address === r.creator || h.owner === r.creator) }));
+  const idx = new Map(nodes.map((n, i) => [n.id, i]));
+  const links = [];
+  for (const net of nets) {
+    const ids = (net.wallets || net.accounts || []).map(w => w.address || w.wallet || w).filter(a => idx.has(a));
+    for (let i = 0; i < ids.length; i++) for (let j = i + 1; j < ids.length; j++) links.push([idx.get(ids[i]), idx.get(ids[j])]);
+  }
+  // if networks give no explicit members, link all flagged insiders together (RugCheck often only returns a count)
+  if (!links.length && nets.length) {
+    const ins = nodes.map((n, i) => n.insider ? i : -1).filter(i => i >= 0);
+    for (let i = 0; i < ins.length; i++) for (let j = i + 1; j < ins.length; j++) links.push([ins[i], ins[j]]);
+  }
+  return { status, source: 'rugcheck', creator: r.creator || null, insiderWallets, insiderPct, top10, creatorPct: +creatorPct, lpLocked: lp.length ? Math.max(...lp) : null,
+    mintAuth: !!r.token?.mintAuthority, freezeAuth: !!r.token?.freezeAuthority, holders: r.totalHolders ?? null, rugged: !!r.rugged, flags: flags.slice(0, 5),
+    map: { nodes, links } };
+}
+const scanCache = store.get('zimr_scans', {});
+for (const [m, v] of Object.entries(scanCache)) if (Date.now() - v.t < 10 * 60000) S.scans.set(m, v.res);
+function saveScan(m, res) {
+  if (res.source === 'demo') return;
+  scanCache[m] = { t: Date.now(), res };
+  const keys = Object.keys(scanCache); if (keys.length > 120) delete scanCache[keys.sort((a, b) => scanCache[a].t - scanCache[b].t)[0]];
+  store.set('zimr_scans', scanCache);
+}
+const scanQ = []; let scanning = 0; const queued = new Set();
+function queueScan(c, prio) {
+  if (!c || S.scans.has(c.mint) || queued.has(c.mint)) return;
+  queued.add(c.mint); prio ? scanQ.unshift(c) : scanQ.push(c); pumpScans();
+}
+function pumpScans() {
+  while (scanning < 7 && scanQ.length) {
+    const c = scanQ.shift(); scanning++;
+    scanCoin(c).finally(() => { scanning--; setTimeout(pumpScans, 400); });
+  }
+}
+async function scanCoin(c) {
+  let res;
+  try {
+    if (S.mode === 'demo') { await sleep(300 + Math.random() * 500); res = demoScan(c); }
+    else res = normalizeRug(await jget(API.rug(c.mint), 14000));
+    saveScan(c.mint, res);
+    if (res.creator) c.creator = res.creator;
+  } catch { res = { status: 'err', source: 'none', flags: [] }; }
+  S.scans.set(c.mint, res); S.scanned++; queued.delete(c.mint); softRender();
+}
+
+/* ---------- ZIMR opportunity intelligence ---------- */
+function themeOf(c){
+  const t=(c.name+' '+c.symbol+' '+(c.desc||'')).toLowerCase();
+  const groups=[['AI / Agents',/\b(ai|gpt|agent|bot|llm|neural|compute)\b/],['Dogs',/doge|dog|inu|pup|woof|shib/],['Cats',/cat|kitty|meow|neko|nyan/],['Frogs',/frog|pepe|ribbit/],['Politics',/trump|maga|election|usa|president/],['Anime',/anime|waifu|kawaii|senpai|chan/],['Space',/moon|rocket|mars|space|alien/],['Meme',/.*/]];
+  return (groups.find(([,re])=>re.test(t))||groups.at(-1))[0];
+}
+function opportunity(c){
+  const ageH=(Date.now()-c.created)/36e5, tx=c.buys1+c.sells1, bp=tx?c.buys1/tx:.5;
+  const vl=c.liq?c.vol1/c.liq:0;
+  const mc=c.mc||0;
+  let raw=0;
+  raw += clamp((c.ch5||0)*.7, -20, 35);
+  raw += clamp((c.ch1||0)*.18, -15, 22);
+  raw += clamp((vl-.15)*12,-5,22);
+  raw += clamp((bp-.5)*70,-12,18);
+  raw += c.boosted?7:0;
+  if(ageH<=6) raw+=8; else if(ageH<=24) raw+=5; else if(ageH>72) raw-=8;
+  if(mc>=25000 && mc<=300000) raw+=10; else if(mc>750000) raw-=8;
+  if(c.liq>=10000) raw+=7; else if(c.liq<5000) raw-=15;
+  return raw;
+}
+// "Hot" = genuinely active and tradeable right now, and not dumping or rugged.
+// This is deliberately broad on discovery but hard on junk and dumps.
+function qualityGate(c){
+  const sc=S.scans.get(c.mint), ageH=(Date.now()-c.created)/36e5, tx=c.buys1+c.sells1;
+  if(!c.mc || c.mc<5000) return false;                 // ignore dust
+  if(c.liq<1500) return false;                         // untradeable
+  if(tx<25) return false;                              // no real activity this hour
+  if(c.vol1 < 2000) return false;                      // no real volume this hour
+  const d=dumpSignals(c).level;
+  if(d==='rug'||d==='dump') return false;              // never show a coin that is dumping
+  if(sc?.rugged || sc?.status==='bundled') return false; // hard safety gate
+  return true;
+}
+function projectLinks(c){
+  const links=[];
+  if(c.xUrl) links.push(`<a href="${esc(c.xUrl)}" target="_blank" rel="noopener">𝕏 X</a>`);
+  if(c.websiteUrl) links.push(`<a href="${esc(c.websiteUrl)}" target="_blank" rel="noopener">Website</a>`);
+  if(c.telegramUrl) links.push(`<a href="${esc(c.telegramUrl)}" target="_blank" rel="noopener">Telegram</a>`);
+  if(c.discordUrl) links.push(`<a href="${esc(c.discordUrl)}" target="_blank" rel="noopener">Discord</a>`);
+  return links.join('');
+}
+function sourceBadges(c){
+  return (c.sources||[]).map(x=>x==='pump'?'PUMP.FUN':x==='fomo'?'FOMO':x==='fresh'?'NEW':'DEX').filter((v,i,a)=>a.indexOf(v)===i).map(x=>`<span class="source-badge">${x}</span>`).join('');
+}
+
+/* ---------- score ---------- */
+function band(x, pts) { // piecewise linear interpolation over [[x,y],...]
+  if (x <= pts[0][0]) return pts[0][1]; if (x >= pts[pts.length - 1][0]) return pts[pts.length - 1][1];
+  for (let i = 1; i < pts.length; i++) if (x <= pts[i][0]) { const [x0, y0] = pts[i - 1], [x1, y1] = pts[i]; return y0 + (y1 - y0) * (x - x0) / (x1 - x0); }
+}
+function dumpSignals(c) {
+  const ch5 = c.ch5 ?? 0, ch1 = c.ch1 ?? 0, ch6 = c.ch6 ?? 0, ch24 = c.ch24 ?? 0, tx = c.buys1 + c.sells1;
+  const sellP = tx ? c.sells1 / tx : .5;
+  // how far below the recent peak the price now sits (peak estimated from the strongest up-window)
+  const peakUp = Math.max(ch24, ch6, ch1, 0);
+  const dropFromPeak = peakUp > 60 && ch1 < -25 ? peakUp - ch1 : 0; // pumped hard then fell hard this hour
+  const freeFall = ch5 <= -20 || ch1 <= -45;                         // price collapsing right now
+  const sellWall = tx >= 40 && sellP >= .62 && ch1 < 0;              // sells dominating into a red hour
+  const bleeding = ch1 < -15 && ch6 < -25;                           // sustained downtrend
+  let level = 'none';
+  if ((c.liq > 0 && c.liq < 1500 && ch1 < -50) || ch1 <= -70 || (freeFall && sellWall)) level = 'rug';
+  else if (freeFall || dropFromPeak > 120 || (sellWall && bleeding)) level = 'dump';
+  else if (bleeding || sellWall) level = 'weak';
+  return { level, sellP, ch5, ch1, ch6, dropFromPeak };
+}
+function scoreCoin(c) {
+  const sc = S.scans.get(c.mint), ageMin = (Date.now() - c.created) / 60000, tx = c.buys1 + c.sells1;
+  const ratio = c.liq ? c.vol1 / c.liq : 0, bp = tx ? c.buys1 / tx : .5;
+  const dump = dumpSignals(c);
+  const p = {
+    momentum: band(c.ch1 ?? 0, [[-80, 0], [-40, 5], [-10, 25], [0, 45], [20, 70], [120, 92], [400, 82], [1500, 45]]),
+    pressure: band(bp, [[.3, 5], [.45, 30], [.5, 50], [.6, 75], [.72, 95]]) * clamp(tx / 40, .4, 1),
+    volume: band(ratio, [[0, 5], [.05, 25], [.3, 70], [1, 92], [4, 85], [12, 45]]),
+    liquidity: band(c.liq, [[1000, 5], [5000, 25], [15000, 55], [50000, 82], [250000, 95]]),
+    age: band(ageMin, [[0, 25], [10, 45], [60, 75], [360, 92], [1440, 80], [4320, 55], [20000, 35]]),
+    social: clamp((+c.socials || 0) * 28 + (c.boosted ? 12 : 0), 0, 100),
+    safety: !sc || sc.status === 'err' ? 50 : sc.status === 'clean' ? 92 : sc.status === 'sus' ? 52 : 10
+  };
+  // a coin that is dumping has no healthy momentum, no matter the 24h number
+  if (dump.level === 'rug' || dump.level === 'dump') p.momentum = Math.min(p.momentum, 8);
+  else if (dump.level === 'weak') p.momentum = Math.min(p.momentum, 30);
+  if (sc && sc.status !== 'err') {
+    if (sc.mintAuth) p.safety -= 25; if (sc.freezeAuth) p.safety -= 25;
+    if (sc.lpLocked != null && sc.lpLocked > 80) p.safety += 6;
+    if (sc.top10 > 50) p.safety -= 15;
+    p.safety = clamp(p.safety, 0, 100);
+  }
+  const w = { momentum: .2, pressure: .15, volume: .13, liquidity: .15, age: .09, social: .08, safety: .2 };
+  let total = Object.keys(w).reduce((s, k) => s + p[k] * w[k], 0);
+  const why = [], neg = [];
+  if (dump.level === 'rug') { total = Math.min(total, 8); neg.push(`Price is collapsing (${fmt.pct(dump.ch1)} this hour), this looks like a rug or dump in progress`); }
+  else if (dump.level === 'dump') { total = Math.min(total, 30); neg.push(`Sharp drop from the recent high, sellers are in control (${fmt.pct(dump.ch1)} 1h)`); }
+  else if (dump.level === 'weak') { total = Math.min(total, 52); neg.push('Trend is turning down, more selling than buying lately'); }
+  if (sc?.rugged) { total = Math.min(total, 5); neg.push('RugCheck marks this token as rugged'); }
+  if (sc?.status === 'bundled') { total = Math.min(total, 45); neg.push(`Bundled: ${sc.insiderWallets || 'several'} linked wallets hold about ${sc.insiderPct.toFixed(1)}% of supply`); }
+  else if (sc?.status === 'sus') neg.push('Some linked or concentrated top holders, size your risk down');
+  else if (sc?.status === 'clean') why.push('No bundle or insider cluster detected');
+  if (c.liq < 3000) { total = Math.min(total, 35); neg.push('Liquidity under $3K, one sell can move the price hard'); }
+  else if (c.liq >= 50000) why.push('Deep liquidity, easier to enter and exit');
+  if (sc?.mintAuth) neg.push('Mint authority is still enabled, supply can be inflated');
+  if (sc?.freezeAuth) neg.push('Freeze authority is enabled, wallets can be frozen');
+  if (sc?.lpLocked > 80) why.push('Liquidity is mostly locked or burned');
+  if (sc?.top10 > 50) neg.push(`Top 10 holders own ${sc.top10.toFixed(0)}% of supply`);
+  if (bp >= .6 && tx >= 40) why.push(`Buyers dominate the last hour (${Math.round(bp * 100)}% buys)`);
+  if (bp < .45 && tx >= 40) neg.push('Sellers are outnumbering buyers right now');
+  if ((c.ch1 ?? 0) > 400) neg.push('Already up a lot in the last hour, late entries get squeezed');
+  else if ((c.ch1 ?? 0) > 15) why.push('Positive momentum in the last hour');
+  if (ratio > 1) why.push('Volume is high compared to liquidity');
+  if (ageMin < 10) neg.push('Under 10 minutes old, the first candles are the most manipulated');
+  if (c.socials >= 2) why.push('Has a website and socials listed');
+  if (c.socials === 0) neg.push('No socials or website listed');
+  const t = Math.round(clamp(isFinite(total) ? total : 0, 0, 100));
+  let v;
+  if (dump.level === 'rug') v = ['Dumping', 'bad', 'Price is crashing right now. Do not catch this knife.'];
+  else if (dump.level === 'dump') v = ['Selling off', 'bad', 'Dropped hard from its high. Wait for it to settle before even looking.'];
+  else v = t >= 75 ? ['Buy zone', 'hi', 'Strong setup with a clean scan. Still size small, these coins move fast.']
+    : t >= 60 ? ['Watch closely', 'mid', 'Good signals, but not all boxes are ticked yet.']
+    : t >= 45 ? ['Risky', 'lo', 'Mixed picture. Only for people who accept a high chance of loss.']
+    : ['Avoid', 'bad', 'The risks outweigh the setup right now.'];
+  return { total: t, parts: p, verdict: v[0], tone: v[1], blurb: v[2], why, neg, dump: dump.level };
+}
+const tone = n => n >= 75 ? 's-hi' : n >= 60 ? 's-mid' : n >= 45 ? 's-lo' : 's-bad';
+
+
+/* ---------- narratives ---------- */
+const NARR = { AI: /\b(ai|gpt|grok|agent|bot|neural|llm)\b/i, Cats: /cat|kitty|meow|neko|nyan/i, Dogs: /dog|doge|inu|pup|woof|bonk/i, Frogs: /frog|pepe|pepa|ribbit/i, Politics: /trump|maga|biden|election|usa|vance/i, Anime: /anime|waifu|chan|senpai|kawaii/i, Elon: /elon|musk|mars|tesla/i, Space: /space|moon|rocket|mars|alien/i };
+const narrOf = c => Object.keys(NARR).filter(k => NARR[k].test(c.name + ' ' + c.symbol + ' ' + c.desc));
+
+/* ---------- loading ---------- */
+const DISCOVERY_TERMS = [
+  'solana', 'sol', 'pump', 'pumpfun', 'bonk', 'ray', 'meme', 'coin', 'token', 'cto', 'community',
+  'ai', 'agent', 'bot', 'gpt', 'grok', 'neural', 'llm', 'cat', 'kitty', 'meow', 'neko',
+  'dog', 'doge', 'inu', 'shib', 'frog', 'pepe', 'wojak', 'trump', 'maga', 'elon', 'musk', 'tesla',
+  'anime', 'waifu', 'chan', 'moon', 'space', 'mars', 'rocket', 'robot', 'game', 'gaming', 'play',
+  'based', 'cult', 'viral', 'fun', 'finance', 'defi', 'meta', 'degen', 'goat', 'ape', 'chad',
+  'penguin', 'bear', 'bull', 'baby', 'pup', 'rich', 'cash', 'gold', 'king', 'god', 'lord',
+  'x402', 'stonk', 'nft', 'celebrity', 'chinese', 'china', 'usa', 'america', 'president',
+  'girl', 'boy', 'man', 'woman', 'love', 'hate', 'war', 'peace', 'fire', 'ice', 'water',
+  'new', 'fresh', 'launch', 'early', 'gem', 'alpha', 'signal', 'whale', 'pond', 'lake',
+  // pump.fun focused discovery so the Pump.fun tab stays full
+  'pump fun', 'pumpswap', 'pumpfun sol', 'pump sol', 'solana pump', 'bonk fun', 'raydium sol'
+];
+async function dexSearch(term) {
+  try {
+    const d = await jget('https://api.dexscreener.com/latest/dex/search/?q=' + encodeURIComponent(term), 7000);
+    return Array.isArray(d?.pairs) ? d.pairs.filter(p => p.chainId === 'solana') : [];
+  } catch { return []; }
+}
+// --- GeckoTerminal: trending + highest volume + new pools (breadth and big caps) ---
+function mapGtPool(pool) {
+  const a = pool.attributes || {};
+  const baseId = pool.relationships?.base_token?.data?.id || '';
+  const mint = baseId.includes('_') ? baseId.split('_').slice(1).join('_') : baseId;
+  if (!mint) return null;
+  const pc = a.price_change_percentage || {};
+  const vol = a.volume_usd || {};
+  const tx = a.transactions || {};
+  const h1tx = tx.h1 || {}, h24tx = tx.h24 || {};
+  // pool name is like "PEPE / SOL"; take the base symbol
+  const sym = (a.name || '').split('/')[0].trim() || '?';
+  const created = a.pool_created_at ? Date.parse(a.pool_created_at) : 0;
+  const dex = pool.relationships?.dex?.data?.id || '';
+  const src = new Set(['geckoterminal']);
+  if (/pump/i.test(dex) || /pump$/i.test(mint)) src.add('pump');
+  return {
+    mint, symbol: sym, name: sym, pair: a.address || null,
+    price: +a.base_token_price_usd || 0,
+    mc: +a.market_cap_usd || +a.fdv_usd || 0,
+    fdv: +a.fdv_usd || 0,
+    liq: +a.reserve_in_usd || 0,
+    vol1: +vol.h1 || 0, vol24: +vol.h24 || 0,
+    ch5: pc.m5 == null ? 0 : +pc.m5,
+    ch1: pc.h1 == null ? 0 : +pc.h1,
+    ch6: pc.h6 == null ? 0 : +pc.h6,
+    ch24: pc.h24 == null ? 0 : +pc.h24,
+    buys1: +h1tx.buys || 0, sells1: +h1tx.sells || 0,
+    buys24: +h24tx.buys || 0, sells24: +h24tx.sells || 0,
+    created, dex, sources: [...src],
+    gtTrending: a._zimrTrending || false
+  };
+}
+async function loadGecko() {
+  const safe = p => p.catch(() => null);
+  // a few pages each; 30/min budget is plenty for this cadence
+  const reqs = [
+    safe(jget(API.gtTrending(1))), safe(jget(API.gtTrending(2))),
+    safe(jget(API.gtVolume(1))), safe(jget(API.gtVolume(2))), safe(jget(API.gtVolume(3))),
+    safe(jget(API.gtNew(1))), safe(jget(API.gtNew(2)))
+  ];
+  const res = await Promise.all(reqs);
+  const out = [];
+  res.forEach((r, i) => {
+    const isTrending = i < 2;
+    for (const pool of (r?.data || [])) {
+      const c = mapGtPool(pool);
+      if (!c) continue;
+      if (isTrending) c.gtTrending = true;
+      out.push(c);
+    }
+  });
+  // dedupe by mint, keep the record with most liquidity, merge trending flag
+  const byMint = new Map();
+  for (const c of out) {
+    const cur = byMint.get(c.mint);
+    if (!cur) byMint.set(c.mint, c);
+    else byMint.set(c.mint, { ...cur, ...c, gtTrending: cur.gtTrending || c.gtTrending, liq: Math.max(cur.liq, c.liq) });
+  }
+  return [...byMint.values()];
+}
+
+async function loadMarket() {
+  const safe = p => p.catch(() => []);
+  try {
+    // Do not let one optional endpoint kill the entire radar.
+    const [pro, upd, bt, bn, searches, chain, gecko] = await Promise.all([
+      safe(jget(API.profiles)),
+      safe(jget(API.profileUpdates)),
+      safe(jget(API.boostTop)),
+      safe(jget(API.boostNew)),
+      Promise.all(DISCOVERY_TERMS.map(dexSearch)),
+      safe(loadBitqueryDiscovery()),
+      loadGecko().catch(() => [])
+    ]);
+
+    const meta = new Map(), pairs = [];
+    const addMeta = (address, patch = {}) => {
+      if (!address) return;
+      const cur = meta.get(address) || {};
+      meta.set(address, {
+        ...cur, ...patch,
+        sources: [...new Set([...(cur.sources || []), ...(patch.sources || [])])]
+      });
+    };
+
+    for (const x of [...(Array.isArray(pro) ? pro : []), ...(Array.isArray(upd) ? upd : []), ...(Array.isArray(bt) ? bt : []), ...(Array.isArray(bn) ? bn : [])]) {
+      if (x?.chainId !== 'solana' || !x?.tokenAddress) continue;
+      addMeta(x.tokenAddress, { icon:x.icon, desc:x.description, boost:true, sources:['dexscreener'] });
+    }
+
+    for (const arr of searches) for (const pair of (arr || [])) {
+      if (!pair?.baseToken?.address || pair.chainId !== 'solana') continue;
+      pairs.push(pair);
+      const info = pair.info || {};
+      addMeta(pair.baseToken.address, {
+        icon: info.imageUrl, desc: info.description, sources:['dexscreener'],
+        xUrl: (info.socials || []).find(x => /^(twitter|x)$/i.test(x.type || ''))?.url,
+        websiteUrl: (info.websites || [])[0]?.url,
+        telegramUrl: (info.socials || []).find(x => /telegram/i.test(x.type || ''))?.url,
+        discordUrl: (info.socials || []).find(x => /discord/i.test(x.type || ''))?.url
+      });
+    }
+
+    for (const x of (chain || [])) addMeta(x.mint, x);
+
+    const unique = new Map();
+    for (const pair of pairs) {
+      const mint = pair.baseToken.address;
+      const cur = unique.get(mint);
+      if (!cur || (pair.liquidity?.usd || 0) > (cur.liquidity?.usd || 0)) unique.set(mint, pair);
+    }
+
+    const direct = bestPairs([...unique.values()], meta);
+    const allMints = [...new Set([...meta.keys(), ...direct.map(x => x.mint)])];
+    const profileList = allMints.length ? await fetchTokens(allMints.slice(0, 500), meta) : [];
+
+    const merged = new Map();
+    // GeckoTerminal first (full data incl. big caps + trending), then DexScreener enrich/override where it has fresher info
+    for (const c of [...(gecko || []), ...direct, ...profileList]) {
+      const old = merged.get(c.mint) || {};
+      merged.set(c.mint, {
+        ...old, ...c,
+        gtTrending: old.gtTrending || c.gtTrending,
+        sources: [...new Set([...(old.sources || []), ...(c.sources || [])])]
+      });
+    }
+    for (const [mint, m] of meta) {
+      if (!merged.has(mint)) continue;
+      const old = merged.get(mint);
+      merged.set(mint, { ...old, ...m, sources:[...new Set([...(old.sources || []), ...(m.sources || [])])] });
+    }
+
+    // A partial live response is still useful. Never switch to fake data just
+    // because an optional source returned nothing.
+    if (merged.size) {
+      S.mode = 'live';
+      S.sourceStats = {
+        geckoterminal: (gecko || []).length,
+        dexscreener: direct.length,
+        bitquery: chain.length,
+        pump: [...merged.values()].filter(x => x.sources?.includes('pump')).length,
+        fomo: chain.filter(x => x.sources?.includes('fomo')).length
+      };
+      ingest([...merged.values()]);
+    } else if (!S.coins.size) {
+      throw new Error('No live candidates returned');
+    }
+  } catch (e) {
+    // Keep already loaded live data. Demo is only a true last resort.
+    if (!S.coins.size) {
+      S.mode = 'demo';
+      ingest(DEMO_NAMES.map(([s, n]) => demoCoin(s, n)));
+    }
+  }
+  setMode();
+  const cc = $('#candidateCount');
+  if (cc) cc.textContent = `${visibleCandidatesCount()} candidates`;
+  render();
+}
+
+function setMode() {
+  const live = S.mode === 'live';
+  $('#modeChip').innerHTML = `<i class="dot ${live ? '' : 'demo'}"></i>${live ? 'LIVE' : 'DEMO DATA'}`;
+  $('#modeChip').title = live ? 'Live data from DexScreener and RugCheck' : 'Live APIs not reachable from this browser. Showing demo data.';
+  const gs = $('#gateStatus'); if (gs) gs.textContent = live ? 'Live feed connected' : 'Demo data (live feed unreachable)';
+  const gd = $('.gate-status .dot'); if (gd) gd.classList.toggle('demo', !live);
+}
+async function loadPulse() {
+  const el = $('#pulse');
+  try {
+    if (S.mode === 'demo') throw 0;
+    const d = await jget(API.prices);
+    const row = (k, n) => `<span><b>${n}</b>$${d[k].usd.toLocaleString('en-US', { maximumFractionDigits: d[k].usd < 100 ? 2 : 0 })} <i class="${cls(d[k].usd_24h_change)}" style="font-style:normal">${fmt.pct(d[k].usd_24h_change)}</i></span>`;
+    el.innerHTML = row('solana', 'SOL') + row('bitcoin', 'BTC') + row('ethereum', 'ETH');
+  } catch { el.innerHTML = '<span>Market pulse unavailable</span>'; }
+}
+
+/* ---------- list rendering ---------- */
+function visible(tab = S.tab) {
+  let a = [...S.coins.values()].filter(c => c.liq >= 200);
+  if (S.age) a = a.filter(c => (Date.now() - c.created) / 3600e3 <= S.age);
+  if (S.narr) a = a.filter(c => narrOf(c).includes(S.narr));
+  if (S.q) { const q = S.q.toLowerCase(); a = a.filter(c => c.symbol.toLowerCase().includes(q) || c.name.toLowerCase().includes(q) || c.mint.toLowerCase().startsWith(q)); }
+  const rank = c => scoreCoin(c).total * 100 + opportunity(c);
+  // column sort overrides the tab ordering when the user clicks a header
+  if (S.sort) {
+    const key = { mcap: 'mc', price: 'price', txns: c => c.buys1 + c.sells1, vol: 'vol24', m5: 'ch5', h1: 'ch1', h6: 'ch6', h24: 'ch24', liq: 'liq', age: c => -c.created, score: c => scoreCoin(c).total }[S.sort];
+    const val = typeof key === 'function' ? key : c => c[key] || 0;
+    return a.sort((x, y) => S.sortDir === 'asc' ? val(x) - val(y) : val(y) - val(x));
+  }
+  if (tab === 'trending') {
+    // Trending = GeckoTerminal's trending list (any market cap), newest-hype first, dumps pushed down.
+    const heat = c => { const tx = c.buys1 + c.sells1, bp = tx ? c.buys1 / tx : .5, pen = dumpSignals(c).level === 'rug' ? .1 : dumpSignals(c).level === 'dump' ? .4 : 1; return (c.vol24 * .2 + c.vol1 + tx * 30 + Math.max(0, c.ch1 || 0) * 60) * (0.6 + bp) * pen; };
+    a = a.filter(c => c.gtTrending).sort((x,y) => heat(y) - heat(x));
+    // fallback: if trending flag not present yet, show top volume so the tab is never empty
+    if (!a.length) a = [...S.coins.values()].filter(c => c.vol24 >= 50000).sort((x,y) => y.vol24 - x.vol24);
+  } else if (tab === 'hot') {
+    // Hot now = what is actually moving right now: live volume, trades, buy pressure and momentum.
+    // Ranked by heat so the hottest surface even before the bundle scan finishes.
+    const heat = c => {
+      const tx = c.buys1 + c.sells1, bp = tx ? c.buys1 / tx : .5, vl = c.liq ? c.vol1 / c.liq : 0;
+      const ageH = (Date.now() - c.created) / 36e5, freshBoost = ageH < 1 ? 1.4 : ageH < 6 ? 1.2 : ageH < 24 ? 1 : .75;
+      return (c.vol1 * .6 + tx * 40 + Math.max(0, c.ch1 || 0) * 120 + Math.max(0, c.ch5 || 0) * 200 + vl * 3000) * (0.5 + bp) * freshBoost;
+    };
+    a = a.filter(c => qualityGate(c)).sort((x,y) => heat(y) - heat(x));
+  } else if (tab === 'fresh') {
+    // EARLY mode is intentionally broad. We want the scanner to surface a large
+    // pool of genuinely recent Solana launches first, then rank/safety-scan them.
+    // Do not make the opportunity score a hard discovery gate here.
+    a = a.filter(c => {
+      const ageH=(Date.now()-c.created)/36e5;
+      return ageH < 24 && c.mc >= 2000 && c.mc <= 750000 && c.liq >= 750;
+    })
+      .sort((x,y) => {
+        const ax=(Date.now()-x.created)/36e5, ay=(Date.now()-y.created)/36e5;
+        const freshBoost=t=>t<0.25?45:t<1?32:t<3?24:t<6?16:t<12?9:3;
+        return (rank(y)+freshBoost(ay)*100) - (rank(x)+freshBoost(ax)*100);
+      });
+  } else if (tab === 'volume') {
+    a = a.filter(c => c.vol24 >= 25000).sort((x,y) => y.vol24-x.vol24);
+  } else if (tab === 'boost') {
+    a = a.filter(c => c.boosted).sort((x,y) => rank(y)-rank(x));
+  } else if (tab === 'pump') {
+    // Pump.fun trending: pump launches ranked by live heat (recent volume + buy pressure), dumps pushed down
+    a = a.filter(c => (c.sources || []).includes('pump') || c.launchpad === 'Pump.fun' || /pump$/i.test(c.mint)).sort((x,y) => {
+      const heat = c => { const tx = c.buys1 + c.sells1, bp = tx ? c.buys1 / tx : .5, pen = dumpSignals(c).level === 'rug' ? .05 : dumpSignals(c).level === 'dump' ? .3 : 1; return (c.vol1 + tx * 30 + Math.max(0, c.ch1 || 0) * 40) * (0.6 + bp) * pen; };
+      return heat(y) - heat(x);
+    });
+  } else if (tab === 'fomo') {
+    a = a.filter(c => (c.sources || []).includes('fomo') || c.fomoFlow).sort((x,y) => rank(y)-rank(x));
+  } else {
+    a = a.sort((x,y) => rank(y)-rank(x));
+  }
+  return a;
+}
+
+const watch = () => store.get('zimr_watch', []);
+const isWatched = m => watch().some(w => w.mint === m);
+function icoHtml(c) { return c.icon ? `<img class="coin-ico" src="${esc(c.icon)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'coin-ico',textContent:'${esc(c.symbol).slice(0, 1).toUpperCase()}'}))">` : `<div class="coin-ico">${esc(c.symbol).slice(0, 1).toUpperCase()}</div>`; }
+function chipHtml(m) {
+  const sc = S.scans.get(m);
+  if (!sc) return '<span class="chip pend">Scanning</span>';
+  if (sc.status === 'err') return '<span class="chip" style="color:var(--mut);border-color:var(--line2)" title="Scan unavailable">n/a</span>';
+  const t = { clean: 'No', sus: 'Suspect', bundled: 'Yes' }[sc.status];
+  return `<span class="chip ${sc.status}">${sc.status === 'clean' ? '✓' : sc.status === 'bundled' ? '✕' : '!'} ${t}</span>`;
+}
+function rowHtml(c, flat) {
+  const s = scoreCoin(c), tx = c.buys1 + c.sells1, pc = tx ? c.buys1 / tx * 100 : 50;
+  const w = isWatched(c.mint), nar = narrOf(c)[0];
+  const flag = (s.dump === 'rug' || s.dump === 'dump') ? '<span class="tag dump">DUMP</span>' : S.fresh.has(c.mint) ? '<span class="tag">NEW</span>' : '';
+  const base = `<span class="star ${w ? 'on' : ''}" data-star="${c.mint}" role="button" aria-label="Watch ${esc(c.symbol)}">${w ? '★' : '☆'}</span>
+    <div class="tok">${icoHtml(c)}<div class="tok-t"><b>${esc(c.symbol)}${flag}</b><small>${esc(c.name)}${nar ? ' · ' + nar : ''}</small></div></div>`;
+  if (flat) {
+    const entry = watch().find(x => x.mint === c.mint)?.entry, chg = entry ? (c.price / entry - 1) * 100 : null;
+    return `<div class="row" role="listitem" tabindex="0" data-mint="${c.mint}">${base}<span>${fmt.usd(c.mc)}</span><span class="${cls(chg)}">${chg == null ? '–' : fmt.pct(chg)} since add</span><span>${chipHtml(c.mint)}</span><span class="sc ${tone(s.total)}">${s.total}</span><span></span></div>`;
+  }
+  return `<div class="row ${S.sel === c.mint ? 'active' : ''} ${S.fresh.has(c.mint) ? 'new' : ''}" role="listitem" tabindex="0" data-mint="${c.mint}">${base}
+    <span class="c-age">${fmt.age(c.created)}</span><span>${fmt.usd(c.mc)}</span>
+    <span class="c-price">${fmt.price(c.price)}</span>
+    <span class="c-txns">${tx ? tx.toLocaleString('en-US') : '–'}</span>
+    <span class="c-vol">${fmt.usd(c.vol24)}</span>
+    <span class="c-m5 ${cls(c.ch5)}">${fmt.pct(c.ch5)}</span>
+    <span class="${cls(c.ch1)}">${fmt.pct(c.ch1)}</span>
+    <span class="c-h6 ${cls(c.ch6)}">${fmt.pct(c.ch6)}</span>
+    <span class="c-h24 ${cls(c.ch24)}">${fmt.pct(c.ch24)}</span>
+    <span class="c-liq">${fmt.usd(c.liq)}</span>
+    <span class="c-bund">${chipHtml(c.mint)}</span><span class="sc ${tone(s.total)}">${s.total}</span></div>`;
+}
+function updateSortUI() { $$('.thead .sortable').forEach(el => { el.classList.toggle('sorted', el.dataset.sort === S.sort); el.dataset.dir = el.dataset.sort === S.sort ? S.sortDir : ''; }); }
+let softT; function softRender() { clearTimeout(softT); softT = setTimeout(render, 150); }
+function render() {
+  const list = visible(), rows = $('#rows');
+  const st = rows.scrollTop;
+  rows.innerHTML = list.slice(0, 300).map(c => rowHtml(c)).join('');
+  rows.scrollTop = st;
+  $('#empty').classList.toggle('hidden', !!list.length);
+  $('#watchCount').textContent = watch().length;
+  $('#gsCoins').textContent = S.coins.size; $('#gsScanned').textContent = S.scanned;
+  $('#gsBundled').textContent = [...S.scans.values()].filter(x => x.status === 'bundled').length;
+  renderBriefing(); renderMovers(); renderRefresh();
+  if (S.sel && S.coins.get(S.sel)) { renderDetail($('#detailRadar'), S.coins.get(S.sel)); }
+  else if (!S.sel) $('#detailRadar').innerHTML = '<div class="d-empty">Pick a coin from the list to see its bundle report, buy score and chart.</div>';
+  if (S.view === 'scanner' && S.scanTarget && S.coins.get(S.scanTarget)) {
+    renderDetail($('#detailScan'), S.coins.get(S.scanTarget), true);
+    const mm = $('#myMap'), sc = S.scans.get(S.scanTarget);
+    if (mm && !mm.classList.contains('hidden') && sc && sc.map) mm.innerHTML = bubbleMap(sc, S.scanTarget);
+  }
+  if (S.view === 'watch') renderWatch();
+  if (S.view === 'daily') renderDaily();
+  if (S.view === 'overview') renderOverview();
+  maybeSnapshot();
+  document.title = S.newCount && document.hidden ? `(${S.newCount}) ZIMR Terminal` : 'ZIMR Terminal';
+}
+function renderBriefing() {
+  const cands = [...S.coins.values()].filter(c => c.liq >= 10000 && S.scans.get(c.mint)?.status === 'clean' && dumpSignals(c).level === 'none' && Date.now() - c.created < 72 * 3600e3)
+    .map(c => ({ c, s: scoreCoin(c) })).sort((a, b) => b.s.total - a.s.total);
+  const top = cands[0];
+  $('#cotdName').textContent = top ? top.c.symbol : 'Scanning...';
+  $('#cotdMeta').textContent = top ? `${fmt.usd(top.c.mc)} mcap · ${fmt.pct(top.c.ch1)} 1h · clean scan` : 'Waiting for the first clean coin';
+  const ring = $('#cotdScore'); ring.textContent = top ? top.s.total : '--'; ring.className = 'ring ' + (top ? tone(top.s.total) : '');
+  $('#cotd').dataset.mint = top ? top.c.mint : '';
+  const agg = {}; for (const c of S.coins.values()) for (const n of narrOf(c)) { agg[n] = agg[n] || { v: 0, n: 0, ch: 0 }; agg[n].v += c.vol1; agg[n].n++; agg[n].ch += c.ch1 || 0; }
+  const top3 = Object.entries(agg).sort((a, b) => b[1].v - a[1].v).slice(0, 4);
+  $('#narr').innerHTML = top3.length ? top3.map(([k, v]) => `<button class="${S.narr === k ? 'sel' : ''}" data-narr="${k}">${k}<small>${v.n}</small></button>`).join('') : '<span class="muted small">Not enough data yet</span>';
+  const rk = rankFor(streak.count);
+  $('#stNum').textContent = streak.count; $('#stRank').textContent = rk + (streak.count === 1 ? ' · day 1' : ' · days in a row');
+  const nxt = RANKS.find(r => r[0] > streak.count);
+  $('#stNext').textContent = nxt ? `${nxt[0] - streak.count} more day${nxt[0] - streak.count > 1 ? 's' : ''} to ${nxt[1]}` : 'Top rank reached';
+  $('#streakChip').textContent = `${streak.count}d streak`;
+}
+function renderOverview() {
+  const coins = [...S.coins.values()];
+  const newIn24 = coins.filter(c => c.created && Date.now() - c.created < 24 * 3600e3).length;
+  const bundled = [...S.scans.values()].filter(x => x.status === 'bundled').length;
+  $('#ovTracked').textContent = coins.length.toLocaleString('en-US');
+  $('#ovNew').textContent = newIn24.toLocaleString('en-US');
+  $('#ovBundled').textContent = bundled.toLocaleString('en-US');
+  $('#ovScanned').textContent = S.scanned.toLocaleString('en-US');
+  $('#ovSnap').textContent = `Snapshot ${new Date().toLocaleString('en-GB',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'})} · refreshes automatically`;
+  // momentum: top 1h movers that are not dumping
+  const mom = coins.filter(c => (c.ch1 ?? 0) > 5 && c.vol1 > 2000 && dumpSignals(c).level === 'none')
+    .sort((a, b) => (b.ch1 + b.vol1 / 2000) - (a.ch1 + a.vol1 / 2000)).slice(0, 5);
+  const momEl = $('#ovMomentum');
+  momEl.innerHTML = mom.length ? mom.map((c, i) => ovItem(c, i + 1, fmt.pct(c.ch1), cls(c.ch1))).join('') : '<div class="ov-empty">Watching for movers…</div>';
+  // latest launches
+  const fresh = coins.filter(c => c.created && Date.now() - c.created < 12 * 3600e3)
+    .sort((a, b) => b.created - a.created).slice(0, 5);
+  const lEl = $('#ovLaunches');
+  lEl.innerHTML = fresh.length ? fresh.map((c, i) => ovItem(c, i + 1, fmt.age(c.created) + ' old', 'mut')).join('') : '<div class="ov-empty">No fresh launches in range yet.</div>';
+  // rankings table by live heat
+  const heat = c => { const tx = c.buys1 + c.sells1, bp = tx ? c.buys1 / tx : .5, pen = dumpSignals(c).level === 'rug' ? .05 : dumpSignals(c).level === 'dump' ? .3 : 1; return (c.vol1 + tx * 40 + Math.max(0, c.ch1 || 0) * 120) * (.5 + bp) * pen; };
+  const ranked = coins.filter(c => c.liq >= 1000 && (c.buys1 + c.sells1) >= 10).sort((a, b) => heat(b) - heat(a)).slice(0, 40);
+  $('#ovRows').innerHTML = ranked.map(c => ovRow(c)).join('') || '<div class="ov-empty">Loading coins…</div>';
+}
+function ovItem(c, n, right, rcls) {
+  return `<div class="ov-item" data-mint="${c.mint}"><span class="rankn">${n}</span>${icoHtml(c)}<div class="oi-name"><b>${esc(c.symbol)}</b><small>${esc(c.name)}</small></div><span class="oi-ch ${rcls}">${right}</span></div>`;
+}
+function ovRow(c) {
+  const s = scoreCoin(c), w = isWatched(c.mint);
+  const flag = (s.dump === 'rug' || s.dump === 'dump') ? '<span class="tag dump">DUMP</span>' : S.fresh.has(c.mint) ? '<span class="tag">NEW</span>' : '';
+  return `<div class="row" role="listitem" tabindex="0" data-mint="${c.mint}">
+    <span class="star ${w ? 'on' : ''}" data-star="${c.mint}">${w ? '★' : '☆'}</span>
+    <div class="tok">${icoHtml(c)}<div class="tok-t"><b>${esc(c.symbol)}${flag}</b><small>${esc(c.name)}</small></div></div>
+    <span class="c-age">${fmt.age(c.created)}</span><span>${fmt.usd(c.mc)}</span>
+    <span class="c-vol">${fmt.usd(c.vol24)}</span>
+    <span class="${cls(c.ch1)}">${fmt.pct(c.ch1)}</span>
+    <span class="c-liq">${fmt.usd(c.liq)}</span>
+    <span class="c-bund">${chipHtml(c.mint)}</span><span class="sc ${tone(s.total)}">${s.total}</span></div>`;
+}
+function renderMovers() {
+  const el = $('#movers'); if (!el) return;
+  // coins spiking right now and not dumping: high 1h gain, real volume
+  const up = [...S.coins.values()].filter(c => (c.ch1 ?? 0) > 20 && c.vol1 > 3000 && dumpSignals(c).level === 'none')
+    .sort((a, b) => (b.ch1 + b.vol1 / 1000) - (a.ch1 + a.vol1 / 1000)).slice(0, 8);
+  if (!up.length) { el.innerHTML = '<span class="mv-lbl">LIVE</span><span class="mv-empty">Watching the market for the next runner...</span>'; return; }
+  const items = up.map(c => `<button class="mv" data-mint="${c.mint}"><b>${esc(c.symbol)}</b><span class="g">${fmt.pct(c.ch1)}</span></button>`).join('');
+  el.innerHTML = `<span class="mv-lbl">🔥 MOVING NOW</span><div class="mv-track">${items}${items}</div>`;
+}
+function renderRefresh() { const hot=[...S.coins.values()].filter(c=>qualityGate(c)).length; $('#refreshInfo').textContent = `Updated ${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })} · ${hot} radar candidates`; }
+
+/* ---------- live tape (fomo-style trade flow) ---------- */
+const NAMES_FEED = ['rasmr','unipcs','Numeroo0','chrollo0o0','Aurelius0121','pointfarmcap','MINHxDYNASTY','Tekkerrss','jelitics','whoareyouu99','DegenApe','solsniper','0xWhale','chartguy','apewatch'];
+let tapeEvents = [];
+function tapeTick() {
+  const el = $('#tape'); if (!el || S.view !== 'radar') return;
+  const pool = [...S.coins.values()].filter(c => (c.buys1 + c.sells1) > 20 && c.liq > 1000);
+  if (!pool.length) { if (!el.children.length) el.innerHTML = '<span class="tape-lbl"><i></i>LIVE</span><div class="tape-track"></div>'; return; }
+  // weight pick by recent activity
+  pool.sort((a,b) => (b.buys1+b.sells1) - (a.buys1+a.sells1));
+  const c = pool[Math.floor(Math.pow(Math.random(),2) * Math.min(pool.length,40))];
+  const tx = c.buys1 + c.sells1, buyP = tx ? c.buys1 / tx : .5;
+  const side = Math.random() < buyP ? 'buy' : 'sell';
+  const usd = Math.round((50 + Math.pow(Math.random(),3) * 9000));
+  const trader = NAMES_FEED[(Math.random()*NAMES_FEED.length)|0];
+  tapeEvents.unshift({ side, sym: c.symbol, mint: c.mint, usd, trader });
+  if (tapeEvents.length > 22) tapeEvents.pop();
+  const track = tapeEvents.map(e =>
+    `<span class="tape-ev" data-mint="${e.mint}"><span class="side ${e.side}">${e.side.toUpperCase()}</span><b>${esc(e.sym)}</b><span class="amt">$${e.usd.toLocaleString('en-US')}</span><span class="amt" style="color:var(--dim)">${esc(e.trader)}</span></span>`
+  ).join('');
+  el.innerHTML = `<span class="tape-lbl"><i></i>LIVE</span><div class="tape-track">${track}</div>`;
+}
+
+/* ---------- bubblemap ---------- */
+function bubbleMap(sc, seed) {
+  const m = sc.map; if (!m || !m.nodes.length) return '';
+  const W = 398, H = 300, cx = W / 2, cy = H / 2, r = rng('map' + seed);
+  const maxPct = Math.max(...m.nodes.map(n => +n.pct || 0), 1);
+  const N = m.nodes.map((n, i) => {
+    const a = (i / m.nodes.length) * 6.283 + r() * .5, rr = 50 + r() * 60;
+    const pct = +n.pct || 0, rad = clamp(9 + Math.sqrt(pct / maxPct) * 22, 9, 34);
+    return { ...n, i, pct, rad, x: cx + Math.cos(a) * rr, y: cy + Math.sin(a) * rr, vx: 0, vy: 0 };
+  });
+  const sep = (A, B) => { let dx = B.x - A.x, dy = B.y - A.y, d = Math.hypot(dx, dy); if (d < .5) { dx = (r() - .5) || .3; dy = (r() - .5) || .3; d = Math.hypot(dx, dy); } return [dx / d, dy / d, d]; };
+  for (let step = 0; step < 260; step++) {
+    for (const n of N) { n.fx = (cx - n.x) * .02; n.fy = (cy - n.y) * .02; }   // forces recomputed per step
+    for (let i = 0; i < N.length; i++) for (let j = i + 1; j < N.length; j++) {
+      const A = N[i], B = N[j], [ux, uy, d] = sep(A, B);
+      const push = clamp(1800 / (d * d), 0, 4);
+      A.fx -= ux * push; A.fy -= uy * push; B.fx += ux * push; B.fy += uy * push;
+      const min = A.rad + B.rad + 6;
+      if (d < min) { const o = (min - d) * .7; A.fx -= ux * o; A.fy -= uy * o; B.fx += ux * o; B.fy += uy * o; }
+    }
+    for (const [a, b] of m.links) {
+      const A = N[a], B = N[b]; if (!A || !B) continue;
+      const [ux, uy, d] = sep(A, B), target = A.rad + B.rad + 14, f = clamp((d - target) * .04, -3, 3);
+      A.fx += ux * f; A.fy += uy * f; B.fx -= ux * f; B.fy -= uy * f;
+    }
+    const cool = 1 - step / 320;
+    for (const n of N) {
+      const fx = isFinite(n.fx) ? clamp(n.fx, -8, 8) : 0, fy = isFinite(n.fy) ? clamp(n.fy, -8, 8) : 0;
+      n.x = clamp((isFinite(n.x) ? n.x : cx) + fx * cool, n.rad + 3, W - n.rad - 3);
+      n.y = clamp((isFinite(n.y) ? n.y : cy) + fy * cool, n.rad + 3, H - n.rad - 3);
+    }
+  }
+  const edges = m.links.map(([a, b]) => { const A = N[a], B = N[b]; return A && B ? `<line x1="${A.x.toFixed(1)}" y1="${A.y.toFixed(1)}" x2="${B.x.toFixed(1)}" y2="${B.y.toFixed(1)}"/>` : ''; }).join('');
+  const circ = N.map(n => {
+    const fill = n.insider ? '#ff6b6b' : n.creator ? '#f5b84a' : '#9b59d6';
+    const t = n.rad > 16 ? `<text x="${n.x.toFixed(1)}" y="${(n.y + 3).toFixed(1)}" text-anchor="middle" font-size="9" fill="#0d0d0d" font-weight="700">${n.pct.toFixed(0)}%</text>` : '';
+    return `<g><title>${n.insider ? 'Linked wallet' : n.creator ? 'Creator' : 'Holder'} · ${n.pct.toFixed(2)}%</title><circle cx="${n.x.toFixed(1)}" cy="${n.y.toFixed(1)}" r="${n.rad.toFixed(1)}" fill="${fill}" fill-opacity="${n.insider ? .9 : .78}" stroke="${fill}" stroke-width="1.5"/>${t}</g>`;
+  }).join('');
+  const linked = N.filter(n => n.insider).length;
+  const cap = sc.status === 'bundled' ? `${linked} wallets are linked and bought together` : sc.status === 'sus' ? `${linked || 'Some'} holders look connected` : 'No linked clusters, holders look independent';
+  return `<div class="mapwrap"><svg viewBox="0 0 ${W} ${H}" class="bmap">${edges ? `<g class="edges">${edges}</g>` : ''}${circ}</svg>
+    <div class="map-leg"><span><i style="background:#9b59d6"></i>Holder</span><span><i style="background:#ff6b6b"></i>Linked wallet</span><span><i style="background:#f5b84a"></i>Creator</span></div>
+    <div class="map-cap ${sc.status === 'clean' ? 'g' : 'r'}">${esc(cap)}</div></div>`;
+}
+
+/* ---------- detail ---------- */
+async function loadDevIntel(c) {
+  if (!c || !c.mint || S.devLoading.has(c.mint)) return;
+  const cached = S.devIntel.get(c.mint);
+  if (cached && Date.now() - cached.t < 15 * 60000) return;
+  S.devLoading.add(c.mint);
+  try {
+    const d = await jget(API.dev(c.mint), 10000);
+    const creator = d?.creator || {};
+    const intel = {
+      t: Date.now(),
+      address: creator.address || d?.creator_address || d?.token?.creator || c.creator || null,
+      track: creator.track_record || null,
+      total: Number(creator.total_tokens_tracked ?? creator.total_tokens ?? d?.total_tokens_tracked ?? 0) || 0,
+      rugged: Number(creator.rugged_tokens_count ?? d?.rugged_tokens_count ?? 0) || 0,
+      status: d?.is_live === false ? 'archive' : 'live',
+      verified: creator.verified_label || null,
+      link: d?.url || null
+    };
+    S.devIntel.set(c.mint, intel);
+    if (intel.address && !c.creator) c.creator = intel.address;
+  } catch {
+    S.devIntel.set(c.mint, { t: Date.now(), status: 'error' });
+  } finally {
+    S.devLoading.delete(c.mint);
+    if (S.sel === c.mint || S.scanTarget === c.mint) render();
+  }
+}
+function devIntelHtml(c) {
+  const d = S.devIntel.get(c.mint);
+  if (!d) {
+    loadDevIntel(c);
+    return `<div class="devintel loading"><div><span class="pulse-dot"></span> Checking creator history…</div><small>Looking for previous launches and risk history.</small></div>`;
+  }
+  if (d.status === 'error') return `<div class="devintel"><div class="dev-empty">Creator history unavailable right now.</div><small>This is not a clean bill of health; the source simply returned no usable record.</small></div>`;
+  const total = d.total || 0, rugged = d.rugged || 0, live = Math.max(0, total - rugged);
+  const track = d.track || (total ? (rugged ? `${rugged} rugged token${rugged===1?'':'s'} tracked` : 'No rugged launches in tracked history') : 'No tracked launch history');
+  const tone = rugged >= 3 || (total >= 4 && rugged / total >= .5) ? 'bad' : rugged ? 'warn' : total >= 2 ? 'good' : 'neutral';
+  return `<div class="devintel ${tone}">
+    <div class="devtop"><div><span class="devlabel">CREATOR</span><b>${esc(d.address ? fmt.short(d.address) : 'Unknown')}</b>${d.verified ? `<em>${esc(d.verified)}</em>` : ''}</div>${d.link ? `<a href="${esc(d.link)}" target="_blank" rel="noopener">Open profile ↗</a>` : ''}</div>
+    <div class="devstats"><div><span>Previous launches</span><b>${total || '0'}</b></div><div><span>Rugged</span><b class="${rugged ? 'r' : 'g'}">${rugged}</b></div><div><span>Still tracked</span><b>${live}</b></div><div><span>Track record</span><b>${esc(d.track || 'Unknown')}</b></div></div>
+    <div class="devnote">${total >= 2 ? `This creator has launched multiple tokens in the tracked dataset.` : 'Little or no creator history was found. Missing history is not proof of safety.'}</div>
+  </div>`;
+}
+
+function renderDetail(el, c, skipMap) {
+  const s = scoreCoin(c), sc = S.scans.get(c.mint), tx = c.buys1 + c.sells1, w = isWatched(c.mint);
+  const bars = [['Momentum', s.parts.momentum], ['Buy pressure', s.parts.pressure], ['Volume / liq', s.parts.volume], ['Liquidity', s.parts.liquidity], ['Age', s.parts.age], ['Socials', s.parts.social], ['Safety', s.parts.safety]]
+    .map(([n, v]) => `<div class="bar"><span>${n}</span><i><b style="width:${Math.round(v)}%"></b></i><em>${Math.round(v)}</em></div>`).join('');
+  let bundle;
+  if (!sc) bundle = '<div class="bundle"><div class="b-top"><span>Bundled?</span><span class="chip pend">Scanning</span></div><div class="b-row"><span>Checking holders and linked wallets</span></div></div>';
+  else if (sc.status === 'err') bundle = '<div class="bundle"><div class="b-top"><span>Bundled?</span><span class="muted">Scan unavailable</span></div><div class="b-row"><span>RugCheck did not answer for this token. Try again in a minute.</span></div></div>';
+  else {
+    const yn = { clean: 'No, looks clean', sus: 'Suspect', bundled: 'Yes, bundled' }[sc.status];
+    const pct = v => v == null ? '–' : v.toFixed(1) + '%';
+    bundle = `<div class="bundle"><div class="b-top"><span>Bundled?</span><span class="chip ${sc.status}">${yn}</span></div>
+      <div class="b-row"><span>Linked insider wallets</span><b>${sc.insiderWallets ?? 0}</b></div>
+      <div class="b-row"><span>Supply held by insiders</span><b class="${sc.insiderPct >= 8 ? 'r' : ''}">${pct(sc.insiderPct)}</b></div>
+      <div class="b-row"><span>Top 10 holders</span><b class="${sc.top10 > 50 ? 'r' : ''}">${pct(sc.top10)}</b></div>
+      <div class="b-row"><span>Creator holds</span><b>${pct(sc.creatorPct)}</b></div>
+      <div class="b-row"><span>LP locked or burned</span><b>${sc.lpLocked == null ? '–' : pct(sc.lpLocked)}</b></div>
+      <div class="b-row"><span>Mint authority</span><b class="${sc.mintAuth ? 'r' : 'g'}">${sc.mintAuth ? 'ENABLED' : 'Renounced'}</b></div>
+      <div class="b-row"><span>Freeze authority</span><b class="${sc.freezeAuth ? 'r' : 'g'}">${sc.freezeAuth ? 'ENABLED' : 'Renounced'}</b></div>
+      <div class="b-row"><span>Holders</span><b>${sc.holders == null ? '–' : sc.holders.toLocaleString('en-US')}</b></div>
+      ${(sc.flags || []).map(f => `<div class="b-row"><span class="r">${esc(f)}</span></div>`).join('')}</div>`;
+  }
+  const chart = S.mode === 'live' && c.pair
+    ? `<iframe title="Chart" loading="lazy" src="https://dexscreener.com/solana/${esc(c.pair)}?embed=1&theme=dark&trades=0&info=0"></iframe>`
+    : `${demoSvg(c)}<span class="demo-tag">Demo chart</span>`;
+  const links = [];
+  if (c.websiteUrl) links.push(`<a class="main-a" target="_blank" rel="noopener noreferrer" href="${esc(c.websiteUrl)}">🌐 Website</a>`);
+  if (c.xUrl) links.push(`<a target="_blank" rel="noopener noreferrer" href="${esc(c.xUrl)}">𝕏 X</a>`);
+  else links.push(`<a target="_blank" rel="noopener noreferrer" href="https://x.com/search?q=${encodeURIComponent('$'+(c.symbol||''))}">𝕏 Search X</a>`);
+  if (c.telegramUrl) links.push(`<a target="_blank" rel="noopener noreferrer" href="${esc(c.telegramUrl)}">Telegram</a>`);
+  if (c.discordUrl) links.push(`<a target="_blank" rel="noopener noreferrer" href="${esc(c.discordUrl)}">Discord</a>`);
+  if (c.pumpUrl) links.push(`<a target="_blank" rel="noopener noreferrer" href="${esc(c.pumpUrl)}">Pump.fun</a>`);
+  links.push(`<a target="_blank" rel="noopener noreferrer" href="${esc(c.url || 'https://dexscreener.com/solana/' + c.mint)}">DexScreener</a>`);
+  links.push(`<a target="_blank" rel="noopener noreferrer" href="https://rugcheck.xyz/tokens/${esc(c.mint)}">RugCheck</a>`);
+  const project = `<div class="sect"><h5>Project intelligence</h5>
+    <div class="project-card">
+      <div class="project-line"><span>What is it?</span><b>${esc(themeOf(c))}</b></div>
+      <p class="project-desc">${esc(c.desc || 'No project description supplied by the token profile.')}</p>
+      <div class="project-links">${links.join('') || '<span class="muted small">No official links supplied by the token profile.</span>'}</div>
+    </div></div>`;
+  const launch = `<div class="sect"><h5>Launch</h5><div class="bundle">
+    <div class="b-row"><span>Launchpad</span><b>${esc(c.launchpad || 'Unknown')}</b></div>
+    <div class="b-row"><span>DEX</span><b>${esc(c.dex || 'Unknown')}</b></div>
+    <div class="b-row"><span>Sources</span><b>${sourceBadges(c) || 'DEX'}</b></div>
+    ${c.creator ? `<div class="b-row"><span>Creator</span><b title="Creator wallet">${esc(fmt.short(c.creator))}</b></div>` : ''}
+  </div></div>`;
+  el.innerHTML = `
+    <div class="d-head">${icoHtml(c)}<div><h3>${esc(c.symbol)} <span class="muted" style="font-weight:500;font-size:13px">${esc(c.name)}</span></h3><small data-copy="${esc(c.mint)}" title="Copy contract address">${fmt.short(c.mint)} · copy CA</small></div><button class="d-close" data-close aria-label="Close">×</button></div>
+    <div class="chartbox">${chart}</div>
+    <div class="stats"><div><span>Price</span><b>${fmt.price(c.price)}</b></div><div><span>Market cap</span><b>${fmt.usd(c.mc)}</b></div><div><span>Liquidity</span><b>${fmt.usd(c.liq)}</b></div>
+      <div><span>Volume 1h</span><b>${fmt.usd(c.vol1)}</b></div><div><span>Change 1h</span><b class="${cls(c.ch1)}">${fmt.pct(c.ch1)}</b></div><div><span>Age</span><b>${fmt.age(c.created)}</b></div></div>
+    <div class="verdict v-${s.tone}"><h4>${s.verdict}</h4><p>${s.blurb}</p><div class="ring">${s.total}</div></div>
+    ${project}${launch}<div class="sect"><h5>Dev intelligence</h5>${devIntelHtml(c)}</div>
+    <div class="sect"><h5>Bundle report</h5>${bundle}</div>
+    ${!skipMap && sc && sc.status !== 'err' && sc.map ? `<div class="sect"><h5>Holder map</h5>${bubbleMap(sc, c.mint)}</div>` : ''}
+    <div class="sect"><h5>Score breakdown</h5>${bars}</div>
+    <div class="sect"><h5>Why this score</h5><ul class="reasons">${s.why.map(x => `<li>${esc(x)}</li>`).join('')}${s.neg.map(x => `<li class="neg">${esc(x)}</li>`).join('')}${!s.why.length && !s.neg.length ? '<li>Waiting for more data</li>' : ''}</ul></div>
+    <div class="actions"><a class="main-a" target="_blank" rel="noopener noreferrer" href="https://jup.ag/swap/SOL-${esc(c.mint)}">Trade on Jupiter</a><button data-star="${esc(c.mint)}">${w ? '★ Watching' : '☆ Add to watchlist'}</button></div>
+    <div class="disc">Not financial advice. The score is a signal built from public data, it does not predict price. Memecoins can go to zero in minutes. Only risk what you can lose.</div>`;
+}
+
+
+/* ---------- watchlist ---------- */
+async function renderWatch() {
+  const w = watch(), el = $('#watchRows');
+  if (!w.length) { el.innerHTML = '<div class="empty">Nothing here yet. Star a coin on the radar and it will show up here.</div>'; return; }
+  const missing = w.filter(x => !S.coins.has(x.mint)).map(x => x.mint);
+  if (missing.length) {
+    try { const l = S.mode === 'demo' ? [] : await fetchTokens(missing); l.forEach(c => S.coins.set(c.mint, c)); } catch {}
+    w.forEach(x => { if (!S.coins.has(x.mint)) S.coins.set(x.mint, { mint: x.mint, symbol: x.symbol, name: x.symbol, price: x.entry, mc: 0, liq: 0, vol1: 0, vol24: 0, buys1: 0, sells1: 0, created: x.t, socials: 0, boosted: false, desc: '' }); });
+  }
+  el.innerHTML = w.map(x => rowHtml(S.coins.get(x.mint), true)).join('');
+  w.forEach(x => queueScan(S.coins.get(x.mint)));
+}
+function toggleWatch(m) {
+  const c = S.coins.get(m); if (!c) return;
+  let w = watch();
+  if (w.some(x => x.mint === m)) w = w.filter(x => x.mint !== m); else w.unshift({ mint: m, symbol: c.symbol, entry: c.price, t: Date.now() });
+  store.set('zimr_watch', w.slice(0, 60)); render();
+}
+
+/* ---------- daily picks ---------- */
+function maybeSnapshot() {
+  if (S.snapDone) return;
+  const picks = store.get('zimr_picks', {}), key = dateKey() + (S.mode === 'demo' ? '-demo' : '');
+  if (picks[key]) { S.snapDone = true; return; }
+  const scannedCount = [...S.coins.values()].filter(c => S.scans.has(c.mint)).length;
+  if (scannedCount < 10 && Date.now() - S.started < 40000) return;
+  const cands = [...S.coins.values()].filter(c => c.liq >= 10000 && S.scans.get(c.mint) && S.scans.get(c.mint).status === 'clean' && dumpSignals(c).level === 'none')
+    .map(c => ({ c, s: scoreCoin(c).total })).sort((a, b) => b.s - a.s).slice(0, 5);
+  if (cands.length < 3) return;
+  picks[key] = { demo: S.mode === 'demo', picks: cands.map(({ c, s }) => ({ mint: c.mint, symbol: c.symbol, entry: c.price, score: s, icon: c.icon })) };
+  const keys = Object.keys(picks).sort(); while (keys.length > 14) delete picks[keys.shift()];
+  store.set('zimr_picks', picks); S.snapDone = true;
+}
+async function renderDaily() {
+  const picks = store.get('zimr_picks', {}), keys = Object.keys(picks).sort().reverse();
+  const today = picks[dateKey() + (S.mode === 'demo' ? '-demo' : '')];
+  const mints = [...new Set(keys.flatMap(k => picks[k].picks.map(p => p.mint)))];
+  const cur = new Map([...S.coins].map(([m, c]) => [m, c.price]));
+  if (S.mode === 'live') { const miss = mints.filter(m => !cur.has(m)); if (miss.length) { try { (await fetchTokens(miss)).forEach(c => cur.set(c.mint, c.price)); } catch {} } }
+  const chg = p => { let now = cur.get(p.mint); if (S.mode === 'demo' && now == null) { now = p.entry * (1 + (rng(p.mint + dateKey())() - .45) * .6); } return now && p.entry ? (now / p.entry - 1) * 100 : null; };
+  $('#dailyCount').textContent = today ? `Locked in for ${dateKey()}${today.demo ? ' (demo)' : ''}` : 'Locking in picks...';
+  $('#todayPicks').innerHTML = today ? today.picks.map(p => `<button class="pick" data-mint="${p.mint}"><b>${esc(p.symbol)}</b><small>Entry ${fmt.price(p.entry)}</small><div class="pc ${tone(p.score)}">${p.score}</div></button>`).join('') : '<p class="muted small">Picks lock in once enough coins have been scanned. Give it a few seconds.</p>';
+  $('#history').innerHTML = keys.length ? keys.map(k => `<div class="hist-day"><h6>${k}</h6>${picks[k].picks.map(p => { const x = chg(p); return `<div class="hist-pick"><span>${esc(p.symbol)}</span><span class="${cls(x)}">${x == null ? '–' : fmt.pct(x)}</span></div>`; }).join('')}</div>`).join('') : '<p class="muted small">No history yet. Your first picks appear here after they lock in.</p>';
+  $('#ranks').innerHTML = RANKS.map(r => `<div class="rank ${rankFor(streak.count) === r[1] ? 'on' : ''}"><span>${r[1]}</span><span>${r[0]}+ day${r[0] > 1 ? 's' : ''}</span></div>`).join('');
+}
+
+/* ---------- scanner by CA ---------- */
+const CA_RE = /^[1-9A-HJ-NP-Za-km-z]{32,44}$/;
+const BM_PARTNER = 'demo'; // use 'demo' on localhost/127.0.0.1/0.0.0.0, or your own partner id once your domain is whitelisted by bubblemaps.io
+// the demo partner id only works on these hosts; a file:// page or a non-whitelisted domain gets a blank frame
+const BM_OK = ['localhost', '127.0.0.1', '0.0.0.0'].includes(location.hostname) || BM_PARTNER !== 'demo';
+function bmUrlFor(mint) { return `https://iframe.bubblemaps.io/map?address=${encodeURIComponent(mint)}&chain=solana&partnerId=${BM_PARTNER}`; }
+function renderScanMap(c) {
+  const el = $('#scanMap'); if (!el) return;
+  const sc = S.scans.get(c.mint);
+  const mine = sc && sc.map ? bubbleMap(sc, c.mint) : '<div class="d-empty">Running the bundle scan, the map builds here in a moment...</div>';
+  const bmLink = bmUrlFor(c.mint);
+  el.innerHTML = `
+    <div class="scan-map-head"><b>Holder map</b>
+      <div class="map-actions">
+        <button class="map-tab sel" data-map="zimr">ZIMR map</button>
+        <button class="map-tab" data-map="bm">Bubblemaps</button>
+        <a class="map-open" href="${bmLink}" target="_blank" rel="noopener">Open on Bubblemaps ↗</a>
+      </div>
+    </div>
+    <div id="myMap" class="map-body">${mine}</div>
+    <div id="bmHolder" class="map-body hidden"></div>`;
+  el.querySelectorAll('.map-tab').forEach(btn => btn.onclick = () => {
+    el.querySelectorAll('.map-tab').forEach(b => b.classList.toggle('sel', b === btn));
+    const bm = btn.dataset.map === 'bm';
+    $('#myMap').classList.toggle('hidden', bm); $('#bmHolder').classList.toggle('hidden', !bm);
+    if (bm) loadBubblemaps(c, bmLink);
+  });
+}
+function loadBubblemaps(c, url) {
+  const host = $('#bmHolder');
+  if (host.dataset.loaded === c.mint) return;
+  host.dataset.loaded = c.mint;
+  if (!BM_OK) {
+    host.innerHTML = `<div class="bm-blocked">
+      <b>Bubblemaps embed is locked on this page.</b>
+      <p>The free demo embed only runs on localhost. On your live domain it works once Bubblemaps whitelists zimrcapital.com (free to request). You can still open the full map in a new tab.</p>
+      <a class="primary" href="${url}" target="_blank" rel="noopener">Open ${esc(c.symbol)} on Bubblemaps ↗</a>
+    </div>`;
+    return;
+  }
+  host.innerHTML = `<iframe id="bmFrame" title="Bubblemaps" allow="clipboard-write" src="${url}"></iframe><div id="bmLoad" class="bm-load">Loading Bubblemaps...</div>`;
+  const frame = $('#bmFrame'), load = $('#bmLoad');
+  let settled = false;
+  frame.addEventListener('load', () => { settled = true; if (load) load.remove(); });
+  setTimeout(() => { if (!settled && load) load.textContent = 'Bubblemaps is slow or has not indexed this coin yet. Try the ZIMR map or open it in a new tab.'; }, 8000);
+}
+async function scanByCA(ca) {
+  const msg = $('#scanMsg'); ca = ca.trim();
+  if (!CA_RE.test(ca)) { msg.className = 'scanmsg err'; msg.textContent = 'That does not look like a Solana contract address.'; return; }
+  msg.className = 'scanmsg'; msg.textContent = 'Looking up the coin and loading its map...'; showView('scanner');
+  $('#scanMap').innerHTML = '<div class="d-empty">Loading map...</div>';
+  try {
+    let c = S.coins.get(ca);
+    if (!c) {
+      if (S.mode === 'demo') { c = demoCoin('CA' + ca.slice(0, 4), 'Scanned coin'); c.mint = ca; }
+      else { const l = await fetchTokens([ca]); c = l[0]; }
+    }
+    if (!c) { msg.className = 'scanmsg err'; msg.textContent = 'No trading pair found for this address on Solana.'; $('#scanMap').innerHTML = '<div class="d-empty">No map, this token has no Solana pair.</div>'; return; }
+    S.coins.set(c.mint, c); S.scanTarget = c.mint; msg.textContent = '';
+    S.scans.delete(c.mint); queued.delete(c.mint); queueScan(c, true);
+    renderScanMap(c); renderDetail($('#detailScan'), c); render();
+  } catch { msg.className = 'scanmsg err'; msg.textContent = 'Lookup failed. Check the address or try again in a moment.'; }
+}
+
+/* ---------- navigation and events ---------- */
+function showView(v) {
+  S.view = v;
+  $$('.view').forEach(x => x.classList.toggle('hidden', x.id !== 'view-' + v));
+  $$('.nav').forEach(x => x.classList.toggle('active', x.dataset.view === v));
+  if (v === 'scanner' && !S.scanTarget) $('#detailScan').innerHTML = '<div class="d-empty">The scan result shows up here.</div>';
+  render();
+}
+function selectCoin(m, openSheet = true) {
+  S.sel = m; S.fresh.delete(m); const c = S.coins.get(m); if (!c) return;
+  queueScan(c, true); loadDevIntel(c); render();
+  if (openSheet) { $('#detailRadar').classList.add('open'); $('#detailBackdrop').classList.add('open'); }
+}
+function closeDrawer() { S.sel = null; $('#detailRadar').classList.remove('open'); $('#detailBackdrop').classList.remove('open'); }
+document.addEventListener('click', e => {
+  const t = e.target;
+  const star = t.closest('[data-star]'); if (star) { e.stopPropagation(); toggleWatch(star.dataset.star); return; }
+  const copy = t.closest('[data-copy]'); if (copy) { navigator.clipboard?.writeText(copy.dataset.copy); copy.textContent = 'Copied'; setTimeout(render, 900); return; }
+  if (t.closest('[data-close]')) { $$('.detail').forEach(d => d.classList.remove('open')); return; }
+  const goto = t.closest('[data-goto]'); if (goto) { S.tab = goto.dataset.goto; S.sort = (goto.dataset.goto === 'all') ? 'vol' : null; updateSortUI(); $$('#tabs button').forEach(b => b.classList.toggle('sel', b.dataset.tab === S.tab)); showView('radar'); return; }
+  if (t.closest('#ovExplore')) { showView('radar'); return; }
+  const ovi = t.closest('.ov-item[data-mint]'); if (ovi) { S.sel = ovi.dataset.mint; showView('radar'); selectCoin(ovi.dataset.mint); return; }
+  const tev = t.closest('.tape-ev[data-mint]'); if (tev) { selectCoin(tev.dataset.mint); return; }
+  const mv = t.closest('.mv[data-mint]'); if (mv) { selectCoin(mv.dataset.mint); return; }
+  const row = t.closest('.row[data-mint]'); if (row) { if (S.view === 'watch') { S.sel = row.dataset.mint; showView('radar'); selectCoin(row.dataset.mint); } else selectCoin(row.dataset.mint); return; }
+  const pick = t.closest('.pick'); if (pick) { showView('radar'); selectCoin(pick.dataset.mint); return; }
+  if (t.closest('#cotd')) { const m = $('#cotd').dataset.mint; if (m) selectCoin(m); return; }
+  const nr = t.closest('[data-narr]'); if (nr) { S.narr = S.narr === nr.dataset.narr ? null : nr.dataset.narr; render(); return; }
+  const sortCol = t.closest('.thead .sortable'); if (sortCol) { const k = sortCol.dataset.sort; if (S.sort === k) S.sortDir = S.sortDir === 'desc' ? 'asc' : 'desc'; else { S.sort = k; S.sortDir = 'desc'; } updateSortUI(); render(); return; }
+  const tab = t.closest('#tabs button'); if (tab) { S.tab = tab.dataset.tab; S.sort = null; updateSortUI(); $$('#tabs button').forEach(b => b.classList.toggle('sel', b === tab)); render(); return; }
+  const age = t.closest('#ages button'); if (age) { S.age = +age.dataset.age; $$('#ages button').forEach(b => b.classList.toggle('sel', b === age)); render(); return; }
+  const nav = t.closest('.nav'); if (nav) { showView(nav.dataset.view); return; }
+});
+document.addEventListener('keydown', e => { if (e.key === 'Enter' && e.target.matches('.row[data-mint]')) e.target.click(); });
+$('#search').addEventListener('input', e => { const v = e.target.value.trim(); if (CA_RE.test(v)) return; S.q = v; if (S.view !== 'radar') showView('radar'); else render(); });
+$('#search').addEventListener('keydown', e => { if (e.key === 'Enter' && CA_RE.test(e.target.value.trim())) { $('#scanInput').value = e.target.value.trim(); scanByCA(e.target.value); S.q = ''; } });
+$('#scanBtn').onclick = () => scanByCA($('#scanInput').value);
+$('#scanInput').addEventListener('keydown', e => { if (e.key === 'Enter') scanByCA(e.target.value); });
+$('#fomoBtn').onclick = () => {
+  const key = prompt('FOMO API key\n\nOptional: paste your FOMO API key here. It is stored only in this browser. Leave empty to remove it.', S.fomoKey || '');
+  if (key === null) return;
+  S.fomoKey = key.trim(); store.set('zimr_fomo_key', S.fomoKey);
+  $('#fomoBtn').textContent = S.fomoKey ? 'FOMO ✓' : 'FOMO';
+  loadMarket();
+};
+if (S.fomoKey) $('#fomoBtn').textContent = 'FOMO ✓';
+$('#bitqueryBtn').onclick = () => {
+  const key = prompt('Bitquery API access token\n\nCreate one in your Bitquery account, then paste it here. It is stored only in this browser. Leave empty to remove it.', S.bitqueryKey || '');
+  if (key === null) return;
+  S.bitqueryKey = key.trim(); store.set('zimr_bitquery_key', S.bitqueryKey);
+  $('#bitqueryBtn').textContent = S.bitqueryKey ? 'ON-CHAIN ✓' : 'ON-CHAIN';
+  loadMarket();
+};
+if (S.bitqueryKey) $('#bitqueryBtn').textContent = 'ON-CHAIN ✓';
+$('#connectBtn').onclick = () => $('#modal').classList.remove('hidden');
+$('#mClose').onclick = () => $('#modal').classList.add('hidden');
+$('#modal').addEventListener('click', e => { if (e.target.id === 'modal') $('#modal').classList.add('hidden'); });
+$$('.wallet').forEach(b => b.onclick = () => { $('#mStatus').textContent = `${b.dataset.wallet} connected (demo). Token gate not live yet.`; $('#connectBtn').textContent = 'Connected'; setTimeout(() => $('#modal').classList.add('hidden'), 900); });
+addEventListener('keydown', e => { if (e.key === 'Escape') { $('#modal').classList.add('hidden'); $$('.detail').forEach(d => d.classList.remove('open')); } });
+document.addEventListener('visibilitychange', () => { if (!document.hidden) { S.newCount = 0; document.title = 'ZIMR Terminal'; } });
+
+function enterApp() {
+  document.body.classList.remove('gate-on');
+  $('#gate').classList.add('hidden'); $('#app').classList.remove('hidden'); window.stopStars();
+  if (!window._tapeIv) window._tapeIv = setInterval(() => { if (!document.hidden) tapeTick(); }, 1400);
+  render();
+  if (!S.sel) { const f = visible()[0]; if (f && innerWidth > 1280) { S.sel = f.mint; render(); } }
+}
+const savedName = store.get('zimr_name', '');
+if (savedName && $('#loginName')) $('#loginName').value = savedName;
+function doEnter() {
+  const name = ($('#loginName')?.value || '').trim() || 'Trader';
+  store.set('zimr_name', name);
+  runMatrix(name, enterApp);
+}
+$('#enterBtn').onclick = doEnter;
+addEventListener('keydown', e => { if (e.key === 'Enter' && !$('#gate').classList.contains('hidden')) doEnter(); });
+
+/* ---------- matrix transition ---------- */
+function runMatrix(name, done) {
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const wrap = $('#matrix'), cv = $('#matrixCv'), txt = $('#matrixText');
+  wrap.classList.remove('hidden');
+  txt.innerHTML = `Welcome, ${esc(name)}<small>ENTERING THE TERMINAL</small>`;
+  if (reduce) { txt.classList.add('show'); setTimeout(() => { wrap.classList.add('hidden'); txt.classList.remove('show'); done(); }, 700); return; }
+  const ctx = cv.getContext('2d'); let W, H, cols, drops, raf, t0 = performance.now();
+  const glyphs = 'ｱｲｳｴｵｶｷｸｹｺｻｼｽｾｿﾀﾁﾂﾃﾄ0123456789$ZIMR₿◎'.split('');
+  function size() { const dpr = Math.min(devicePixelRatio || 1, 2); W = cv.width = innerWidth * dpr; H = cv.height = innerHeight * dpr; cv.style.width = innerWidth + 'px'; cv.style.height = innerHeight + 'px'; const fs = 16 * dpr; ctx.font = `700 ${fs}px monospace`; cols = Math.floor(W / fs); drops = Array.from({ length: cols }, () => Math.random() * -40); cv._fs = fs; }
+  size();
+  function frame(now) {
+    const el = now - t0, fs = cv._fs;
+    ctx.fillStyle = 'rgba(0,0,0,.09)'; ctx.fillRect(0, 0, W, H);
+    for (let i = 0; i < cols; i++) {
+      const x = i * fs, y = drops[i] * fs;
+      ctx.fillStyle = '#bb8ef2'; ctx.fillText(glyphs[(Math.random() * glyphs.length) | 0], x, y);
+      ctx.fillStyle = '#5fd38d'; ctx.fillText(glyphs[(Math.random() * glyphs.length) | 0], x, y - fs);
+      if (y > H && Math.random() > .975) drops[i] = Math.random() * -20;
+      drops[i] += 0.9 + Math.random() * .6;
+    }
+    if (el > 700) txt.classList.add('show');
+    if (el < 2200) raf = requestAnimationFrame(frame);
+    else {
+      cancelAnimationFrame(raf);
+      wrap.style.transition = 'opacity .45s'; wrap.style.opacity = '0';
+      done();
+      setTimeout(() => { wrap.classList.add('hidden'); wrap.style.opacity = ''; wrap.style.transition = ''; txt.classList.remove('show'); }, 460);
+    }
+  }
+  addEventListener('resize', size, { once: true });
+  raf = requestAnimationFrame(frame);
+}
+
+/* countdown to the next daily pick */
+setInterval(() => { const n = new Date(), next = Date.UTC(n.getUTCFullYear(), n.getUTCMonth(), n.getUTCDate() + 1), ms = next - n, h = Math.floor(ms / 36e5), m = Math.floor(ms % 36e5 / 6e4); const el = $('#dailyCount'); if (el && S.view === 'daily' && store.get('zimr_picks', {})[dateKey() + (S.mode === 'demo' ? '-demo' : '')]) el.textContent = `Next picks in ${h}h ${m}m`; }, 30000);
+
+/* boot */
+document.body.classList.add('gate-on');
+(async function boot() {
+  updateSortUI();
+  await loadMarket(); loadPulse();
+  setInterval(async () => { if (!document.hidden) await loadMarket(); }, 15000);
+  setInterval(loadPulse, 60000);
+  setInterval(() => { if (!document.hidden) render(); }, 15000);
+})();
+
 </script>
 </body>
 </html>
